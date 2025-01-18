@@ -12,13 +12,30 @@ const modalNameOrDelete = document.querySelector(".modalNameOrDelete");
 const modalDeleteBtn = document.querySelector(".btnDeletePage");
 const modalNameBtn = document.querySelector(".btnRenamePage");
 const modalNameInput = document.querySelector(".rename");
+const week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 let currentPageOrder;
 let tempPageOrder;
 let currentPage;
+let currentTable;
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 함수
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 현재 테이블 확인
+function findCurrentTable(event) {
+  if (event.target.parentNode.parentNode.classList.contains("tableClicked")) {
+    event.target.parentNode.parentNode.classList.remove("tableClicked");
+    currentTable = "";
+  } else {
+    event.target.parentNode.parentNode.classList.add("tableClicked");
+    currentTable = event.target.parentNode.parentNode;
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  // HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  //1. 다중클릭 막기 2. 테이블 숨기기 3. 테이블 별 시간 정하기 4. 테이블 선택 안하면 전체 시간으로 적용//
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+}
 // 버튼 좌클릭시 버튼+페이지 추가
 function addPage() {
   // 개수 카운팅
@@ -44,7 +61,7 @@ function addPage() {
   newPage.classList.add("hide");
 }
 
-// 버튼 좌클릭시 페이지 전환
+// 버튼 좌클릭시 페이지 전환 or 페이지 내 테이블 생성
 function openPage(event) {
   currentPageOrder = event.target.getAttribute("order");
   currentPage = document.querySelector(`.page[order="${currentPageOrder}"]`);
@@ -59,16 +76,28 @@ function openPage(event) {
   });
   document.querySelector(`.page[order="${currentPageOrder}"]`).classList.remove("hide");
 
-  //첫 클릭시 테이블 7개 생성(월-일) or 페이지 전환
+  //첫 클릭시 테이블 7개 생성(월-일)
   if (currentPage.childElementCount === 0) {
     for (let i = 0; i < 7; i++) {
       const newTable = document.createElement("div");
       newTable.classList.add("dayTable");
       currentPage.appendChild(newTable);
+
+      const newTimeColumn = document.createElement("div");
+      newTimeColumn.classList.add("timeColumn");
+      newTimeColumn.addEventListener("click", findCurrentTable);
+      newTable.appendChild(newTimeColumn);
+
+      for (let j = 0; j < 26; j++) {
+        const newTimeCell = document.createElement("div");
+        newTimeCell.classList.add("timeCell");
+        newTimeColumn.appendChild(newTimeCell);
+      }
+
+      newTable.querySelector(".timeCell").innerText = week[i];
     }
   }
 }
-///////////////////////////////////////////////// 테이블 안에 날짜열, 선생님열 그리면서 header버튼기능 활성화하기
 // 버튼 우클릭시 모달 띄우기 - 이름설정 / 버튼+페이지 삭제
 function openModal(event) {
   tempPageOrder = event.target.getAttribute("order");

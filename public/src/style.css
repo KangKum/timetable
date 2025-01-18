@@ -19,8 +19,13 @@ body {
 }
 .headerItem {
   height: 100%;
-  width: 8%;
+  width: 3%;
   border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 90%;
+  font-weight: bold;
 }
 
 .main {
@@ -35,13 +40,36 @@ body {
   height: 100%;
   width: 100%;
   display: flex;
+  align-items: center;
   gap: 1%;
 }
 /*  */
 .dayTable {
-  height: 95%;
+  height: 99.8%;
   min-width: 30%;
   border: 1px solid red;
+  display: flex;
+  flex-direction: row;
+}
+.timeColumn {
+  height: 100%;
+  width: 15%;
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+.timeCell {
+  flex: 1;
+  width: 100%;
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.textColumn {
+}
+.textCell {
 }
 
 /* //////////////////////////// */
@@ -108,6 +136,9 @@ button:hover {
 .btnClicked {
   background-color: rgb(240, 225, 204);
   border: 0;
+}
+.tableClicked {
+  background-color: bisque;
 }
 .hide {
   display: none;
