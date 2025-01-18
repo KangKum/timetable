@@ -8,11 +8,25 @@
   </head>
   <body>
     <div class="container">
-      <div class="header"></div>
-      <div class="main"></div>
+      <div class="header">
+        <div class="headerItem">날짜</div>
+        <div class="headerItem">시간</div>
+        <div class="headerItem">배율</div>
+        <div class="headerItem">폰트</div>
+        <div class="headerItem">병합</div>
+        <div class="headerItem">정렬</div>
+      </div>
+      <div class="main">
+        <div class="modalBackground hide">
+          <div class="modalNameOrDelete">
+            <button class="btnRenamePage">이름 변경</button>
+            <button class="btnDeletePage">페이지 삭제</button>
+            <input type="text" class="rename hide" />
+          </div>
+        </div>
+      </div>
       <div class="footer">
         <button class="btnAddPage">+</button>
-        <!-- git연결 -->
       </div>
     </div>
     <script src="src/app.js"></script>
