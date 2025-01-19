@@ -12,30 +12,79 @@ const modalNameOrDelete = document.querySelector(".modalNameOrDelete");
 const modalDeleteBtn = document.querySelector(".btnDeletePage");
 const modalNameBtn = document.querySelector(".btnRenamePage");
 const modalNameInput = document.querySelector(".rename");
+const selectTime = document.querySelector(".selectTime");
+const selectDate = document.querySelector(".selectDate");
 const week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const time = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00", "4:30", "5:00", "5:30", "6:00", "6:30", "7:00", "7:30", "8:00", "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", "11:30", "12:00"];
 let currentPageOrder;
 let tempPageOrder;
 let currentPage;
 let currentTable;
-
+// 1.행추가, 열추가 2.테이블숨기기
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 함수
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 현재 테이블 확인
 function findCurrentTable(event) {
-  if (event.target.parentNode.parentNode.classList.contains("tableClicked")) {
-    event.target.parentNode.parentNode.classList.remove("tableClicked");
-    currentTable = "";
+  if (document.querySelector(".tableClicked")) {
+    currentTable = document.querySelector(".tableClicked");
+    if (currentTable === event.target.parentNode.parentNode) {
+      currentTable.classList.remove("tableClicked");
+      currentTable = "";
+    } else {
+      currentTable.classList.remove("tableClicked");
+      currentTable = event.target.parentNode.parentNode;
+      currentTable.classList.add("tableClicked");
+    }
   } else {
-    event.target.parentNode.parentNode.classList.add("tableClicked");
     currentTable = event.target.parentNode.parentNode;
+    currentTable.classList.add("tableClicked");
   }
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-  // HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE// HERE
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-  //1. 다중클릭 막기 2. 테이블 숨기기 3. 테이블 별 시간 정하기 4. 테이블 선택 안하면 전체 시간으로 적용//
-  ////////////////////////////////////////////////////////////////////////////////////////////////
 }
+//테이블 날짜 세팅
+function settingDate() {
+  const selectedDate = new Date(selectDate.value);
+  if (currentPage) {
+    for (let i = 0; i < 7; i++) {
+      const newDate = new Date(selectedDate);
+      newDate.setDate(selectedDate.getDate() + i);
+      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerText = "";
+      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerText = newDate.toISOString().split("T")[0].slice(5) + `(${week[i]})`;
+    }
+  }
+  if (currentTable) {
+    currentTable.classList.remove("tableClicked");
+    currentTable = "";
+  }
+}
+//테이블 시간 세팅
+function settingTime() {
+  //인덱스 찾기
+  let timeIndex = time.indexOf(selectTime.value);
+
+  if (currentPage) {
+    if (!currentTable) {
+      for (let i = 0; i < 7; i++) {
+        for (let j = 1; j <= currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length - 1; j++) {
+          if (time[timeIndex + j - 1] === undefined) {
+            currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerText = "";
+          } else {
+            currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerText = time[timeIndex + j - 1];
+          }
+        }
+      }
+    } else {
+      for (let j = 1; j <= currentTable.querySelectorAll(".timeCell").length - 1; j++) {
+        if (time[timeIndex + j - 1] === undefined) {
+          currentTable.querySelectorAll(".timeCell")[j].innerText = "";
+        } else {
+          currentTable.querySelectorAll(".timeCell")[j].innerText = time[timeIndex + j - 1];
+        }
+      }
+    }
+  }
+}
+
 // 버튼 좌클릭시 버튼+페이지 추가
 function addPage() {
   // 개수 카운팅
@@ -97,6 +146,9 @@ function openPage(event) {
       newTable.querySelector(".timeCell").innerText = week[i];
     }
   }
+
+  //달력날짜 초기화
+  selectDate.value = "";
 }
 // 버튼 우클릭시 모달 띄우기 - 이름설정 / 버튼+페이지 삭제
 function openModal(event) {
@@ -139,3 +191,5 @@ modalNameBtn.addEventListener("click", modalNaming);
 modalNameInput.addEventListener("keydown", btnPageNaming);
 modal.addEventListener("click", closeModal);
 modalNameOrDelete.addEventListener("click", closePreventModal);
+selectTime.addEventListener("change", settingTime);
+selectDate.addEventListener("change", settingDate);
