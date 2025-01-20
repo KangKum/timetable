@@ -1,29 +1,31 @@
 document.addEventListener("contextmenu", (event) => {
   event.preventDefault();
 });
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 변수
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////// 변수
 const main = document.querySelector(".main");
 const footer = document.querySelector(".footer");
+//FOOTER
 const btnAddPage = document.querySelector(".btnAddPage");
 const modal = document.querySelector(".modalBackground");
 const modalNameOrDelete = document.querySelector(".modalNameOrDelete");
 const modalDeleteBtn = document.querySelector(".btnDeletePage");
 const modalNameBtn = document.querySelector(".btnRenamePage");
 const modalNameInput = document.querySelector(".rename");
+//HEADER
 const selectTime = document.querySelector(".selectTime");
 const selectDate = document.querySelector(".selectDate");
 const week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const time = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00", "4:30", "5:00", "5:30", "6:00", "6:30", "7:00", "7:30", "8:00", "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", "11:30", "12:00"];
+const btnAddRow = document.querySelector(".btnAddRow");
+const btnDeleteRow = document.querySelector(".btnDeleteRow");
+const btnAddColumn = document.querySelector(".btnAddColumn");
+const btnDeleteColumn = document.querySelector(".btnDeleteColumn");
 let currentPageOrder;
 let tempPageOrder;
 let currentPage;
 let currentTable;
-// 1.행추가, 열추가 2.테이블숨기기
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 함수
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////// 함수
+/////////////////////////////////////////////////////////HEADER////////////////////////////////////////
 // 현재 테이블 확인
 function findCurrentTable(event) {
   if (document.querySelector(".tableClicked")) {
@@ -41,6 +43,15 @@ function findCurrentTable(event) {
     currentTable.classList.add("tableClicked");
   }
 }
+//오늘 날짜로
+function goToday() {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const formattedDate = `${yyyy}-${mm}-${dd}`;
+  selectDate.value = formattedDate;
+}
 //테이블 날짜 세팅
 function settingDate() {
   const selectedDate = new Date(selectDate.value);
@@ -49,7 +60,7 @@ function settingDate() {
       const newDate = new Date(selectedDate);
       newDate.setDate(selectedDate.getDate() + i);
       currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerText = "";
-      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerText = newDate.toISOString().split("T")[0].slice(5) + `(${week[i]})`;
+      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerText = newDate.toISOString().split("T")[0].slice(5) + ` (${week[i]})`;
     }
   }
   if (currentTable) {
@@ -59,32 +70,164 @@ function settingDate() {
 }
 //테이블 시간 세팅
 function settingTime() {
+  if (!currentPage) {
+    return;
+  }
+
   //인덱스 찾기
   let timeIndex = time.indexOf(selectTime.value);
-
-  if (currentPage) {
-    if (!currentTable) {
-      for (let i = 0; i < 7; i++) {
-        for (let j = 1; j <= currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length - 1; j++) {
-          if (time[timeIndex + j - 1] === undefined) {
-            currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerText = "";
-          } else {
-            currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerText = time[timeIndex + j - 1];
-          }
+  if (!currentTable) {
+    //전체 테이블블
+    for (let i = 0; i < 7; i++) {
+      for (let j = 1; j <= currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length - 1; j++) {
+        if (time[timeIndex + j] === undefined) {
+          currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerText = "";
+        } else {
+          currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerText = time[timeIndex + j - 1] + " - " + time[timeIndex + j];
         }
       }
-    } else {
-      for (let j = 1; j <= currentTable.querySelectorAll(".timeCell").length - 1; j++) {
-        if (time[timeIndex + j - 1] === undefined) {
-          currentTable.querySelectorAll(".timeCell")[j].innerText = "";
-        } else {
-          currentTable.querySelectorAll(".timeCell")[j].innerText = time[timeIndex + j - 1];
-        }
+    }
+  } else {
+    //한개 테이블블
+    for (let j = 1; j <= currentTable.querySelectorAll(".timeCell").length - 1; j++) {
+      if (time[timeIndex + j] === undefined) {
+        currentTable.querySelectorAll(".timeCell")[j].innerText = "";
+      } else {
+        currentTable.querySelectorAll(".timeCell")[j].innerText = time[timeIndex + j - 1] + " - " + time[timeIndex + j];
       }
     }
   }
 }
 
+function addCol() {
+  if (!currentPage) {
+    return;
+  }
+
+  if (currentTable) {
+    //테이블 하나
+    let newTextColumn = document.createElement("div");
+    newTextColumn.classList.add("textColumn");
+    for (let j = 0; j < currentTable.querySelectorAll(".timeCell").length; j++) {
+      let newTextCell = document.createElement("div");
+      newTextCell.classList.add("textCell");
+      newTextCell.setAttribute("contenteditable", true);
+      newTextColumn.appendChild(newTextCell);
+    }
+    currentTable.appendChild(newTextColumn);
+  } else {
+    //테이블 전체
+    for (let i = 0; i < 7; i++) {
+      let numOfRow = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length;
+      let newTextColumn = document.createElement("div");
+      newTextColumn.classList.add("textColumn");
+      for (let j = 0; j < numOfRow; j++) {
+        let newTextCell = document.createElement("div");
+        newTextCell.classList.add("textCell");
+        newTextCell.setAttribute("contenteditable", true);
+        newTextColumn.appendChild(newTextCell);
+      }
+      currentPage.querySelectorAll(".dayTable")[i].appendChild(newTextColumn);
+    }
+  }
+}
+
+function deleteCol() {
+  if (!currentPage) {
+    return;
+  }
+
+  if (currentTable) {
+    //한개 테이블
+    if (currentTable.querySelector(".timeColumn")) {
+      let numOfCol = currentTable.querySelectorAll(".timeColumn").length;
+      currentTable.querySelectorAll(".textColumn")[numOfCol - 1].remove();
+    }
+  } else {
+    //전체 테이블
+    for (let i = 0; i < 7; i++) {
+      if (currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeColumn")) {
+        let numOfCol = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeColumn").length;
+        currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[numOfCol - 1].remove();
+      }
+    }
+  }
+}
+
+function addRow() {
+  if (!currentPage) {
+    return;
+  }
+
+  if (currentTable) {
+    //한개 테이블
+    //timeCell
+    let newTimeCell = document.createElement("div");
+    newTimeCell.classList.add("timeCell");
+    currentTable.querySelector(".timeColumn").appendChild(newTimeCell);
+
+    //textCell
+    let numOfCol = currentTable.querySelectorAll(".textColumn").length;
+    for (let j = 0; j < numOfCol; j++) {
+      let newTextCell = document.createElement("div");
+      newTextCell.classList.add("textCell");
+      newTextCell.setAttribute("contenteditable", true);
+      currentTable.querySelectorAll(".textColumn")[j].appendChild(newTextCell);
+    }
+  } else {
+    //전체 테이블
+    for (let i = 0; i < 7; i++) {
+      //timeCell
+      let newTimeCell = document.createElement("div");
+      newTimeCell.classList.add("timeCell");
+      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeColumn").appendChild(newTimeCell);
+
+      //textCell
+      let numOfCol = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn").length;
+      for (let j = 0; j < numOfCol; j++) {
+        let newTextCell = document.createElement("div");
+        newTextCell.classList.add("textCell");
+        newTextCell.setAttribute("contenteditable", true);
+        currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[j].appendChild(newTextCell);
+      }
+    }
+  }
+}
+
+function deleteRow() {
+  if (!currentPage) {
+    return;
+  }
+
+  if (currentTable) {
+    //한개 테이블
+    //timeCell
+    let numOfRow = currentTable.querySelectorAll(".timeCell").length;
+    currentTable.querySelector(".timeColumn").querySelectorAll(".timeCell")[numOfRow - 1].remove();
+
+    //textCell
+    let numOfCol = currentTable.querySelectorAll(".textColumn").length;
+    for (let j = 0; j < numOfCol; j++) {
+      currentTable.querySelectorAll(".textColumn")[j].querySelectorAll(".textCell")[numOfRow - 1].remove();
+    }
+  } else {
+    //전체 테이블
+    for (let i = 0; i < 7; i++) {
+      //timeCell
+      let numOfRow = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length;
+      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeColumn").querySelectorAll(".timeCell")[numOfRow - 1].remove();
+
+      //textCell
+      let numOfCol = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn").length;
+      for (let j = 0; j < numOfCol; j++) {
+        currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[j].querySelectorAll(".textCell")[numOfRow - 1].remove();
+      }
+    }
+  }
+}
+/////////////////////////////////////////////////////////MAIN///////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////FOOTER///////////////////////////////////////////////////////////
 // 버튼 좌클릭시 버튼+페이지 추가
 function addPage() {
   // 개수 카운팅
@@ -148,7 +291,8 @@ function openPage(event) {
   }
 
   //달력날짜 초기화
-  selectDate.value = "";
+  // selectDate.value = "";
+  goToday();
 }
 // 버튼 우클릭시 모달 띄우기 - 이름설정 / 버튼+페이지 삭제
 function openModal(event) {
@@ -185,6 +329,7 @@ function closePreventModal(event) {
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 이벤트
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
+goToday();
 btnAddPage.addEventListener("click", addPage);
 modalDeleteBtn.addEventListener("click", modalDelete);
 modalNameBtn.addEventListener("click", modalNaming);
@@ -193,3 +338,7 @@ modal.addEventListener("click", closeModal);
 modalNameOrDelete.addEventListener("click", closePreventModal);
 selectTime.addEventListener("change", settingTime);
 selectDate.addEventListener("change", settingDate);
+btnAddColumn.addEventListener("click", addCol);
+btnDeleteColumn.addEventListener("click", deleteCol);
+btnAddRow.addEventListener("click", addRow);
+btnDeleteRow.addEventListener("click", deleteRow);
