@@ -19,13 +19,22 @@ body {
 }
 .headerItem {
   height: 100%;
-  width: 3%;
+  width: auto;
   border: 1px solid black;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 90%;
   font-weight: bold;
+}
+.markCurrentCell {
+  border: 2px solid blue;
+  width: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 100%;
+  margin-left: 200px;
 }
 
 .main {
@@ -42,6 +51,7 @@ body {
   display: flex;
   align-items: center;
   gap: 1%;
+  transform-origin: top left;
 }
 /*  */
 .dayTable {
