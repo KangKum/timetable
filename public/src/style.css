@@ -57,7 +57,6 @@ body {
 .dayTable {
   height: 99.8%;
   width: fit-content;
-  border: 1px solid red;
   display: flex;
   flex-direction: row;
 }
@@ -69,6 +68,7 @@ body {
   flex-direction: column;
   cursor: pointer;
   font-size: 80%;
+  background-color: rgb(229, 230, 231);
 }
 .timeCell {
   flex: 1;
@@ -87,12 +87,18 @@ body {
   font-size: 90%;
 }
 .textCell {
-  flex: 1;
+  /* flex: 1; */
   min-width: 100%;
-  border: 1px solid black;
+  outline: 1px solid black;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.nameCell {
+  background-color: rgb(229, 230, 231);
+}
+.dragged {
+  background-color: rgb(217, 237, 230);
 }
 
 /* //////////////////////////// */

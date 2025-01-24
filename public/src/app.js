@@ -22,17 +22,21 @@ const btnAddColumn = document.querySelector(".btnAddColumn");
 const btnDeleteColumn = document.querySelector(".btnDeleteColumn");
 const btnHideTable = document.querySelector(".btnHideTable");
 const selectScreenRatio = document.querySelector(".selectScreenRatio");
-const textCell = document.querySelectorAll(".textCell");
+const btnMerge = document.querySelector(".btnMerge");
+// const textCell = document.querySelectorAll(".textCell");
 const markCurrentCell = document.querySelector(".markCurrentCell");
+//
 let currentPageOrder;
 let tempPageOrder;
 let currentPage;
 let clickedTable;
 //
 let currentTable;
+let currentColumn;
 let currentCell;
 let colIdx;
 let rowIdx;
+let dragIdx;
 let lastCol;
 let lastRow;
 /////////////////////////////////////////////////////////////////////////////////////////////////// 함수
@@ -152,9 +156,13 @@ function addCol() {
     for (let j = 0; j < clickedTable.querySelectorAll(".timeCell").length; j++) {
       let newTextCell = document.createElement("div");
       newTextCell.classList.add("textCell");
+      if (j === 0) {
+        newTextCell.classList.add("nameCell");
+      }
       newTextCell.setAttribute("contenteditable", true);
       newTextCell.setAttribute("rowIndex", j);
       newTextCell.setAttribute("colIndex", numOfTextColumn);
+      newTextCell.style.flex = 1;
       newTextCell.addEventListener("keydown", cellMove);
       newTextCell.addEventListener("click", findCurrentCell);
       newTextColumn.appendChild(newTextCell);
@@ -170,9 +178,13 @@ function addCol() {
       for (let j = 0; j < numOfRow; j++) {
         let newTextCell = document.createElement("div");
         newTextCell.classList.add("textCell");
+        if (j === 0) {
+          newTextCell.classList.add("nameCell");
+        }
         newTextCell.setAttribute("contenteditable", true);
         newTextCell.setAttribute("rowIndex", j);
         newTextCell.setAttribute("colIndex", numOfTextColumn);
+        newTextCell.style.flex = 1;
         newTextCell.addEventListener("keydown", cellMove);
         newTextCell.addEventListener("click", findCurrentCell);
         newTextColumn.appendChild(newTextCell);
@@ -222,6 +234,7 @@ function addRow() {
       newTextCell.setAttribute("contenteditable", true);
       newTextCell.setAttribute("rowIndex", numOfRow);
       newTextCell.setAttribute("colIndex", j);
+      newTextCell.style.flex = 1;
       newTextCell.addEventListener("keydown", cellMove);
       newTextCell.addEventListener("click", findCurrentCell);
       clickedTable.querySelectorAll(".textColumn")[j].appendChild(newTextCell);
@@ -243,6 +256,7 @@ function addRow() {
         newTextCell.setAttribute("contenteditable", true);
         newTextCell.setAttribute("rowIndex", numOfRow);
         newTextCell.setAttribute("colIndex", j);
+        newTextCell.style.flex = 1;
         newTextCell.addEventListener("keydown", cellMove);
         newTextCell.addEventListener("click", findCurrentCell);
         currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[j].appendChild(newTextCell);
@@ -295,45 +309,247 @@ function adjustScreenRatio() {
 /////////////////////////////////////////////////////////MAIN///////////////////////////////////////////////////////////
 function findCurrentCell(event) {
   currentCell = event.target;
+  currentColumn = currentCell.parentNode;
   currentTable = currentCell.parentNode.parentNode;
   lastCol = currentTable.querySelectorAll(".textColumn").length - 1;
   lastRow = currentTable.querySelectorAll(".timeCell").length - 1;
   colIdx = Number(currentCell.getAttribute("colIndex"));
   rowIdx = Number(currentCell.getAttribute("rowIndex"));
+  dragIdx = rowIdx;
+  clearDrag();
   //표시
   markCurrentCell.innerText = "";
   markCurrentCell.innerText = rowIdx + ", " + colIdx;
 }
+/////////////1.Ctrl이동<다음셀확인기법> 2.Ctrl+Shift이동 3.폰트 4.정렬(여러줄/가로길게) 5.커서 6.탭/엔터 7.선생님별 8.프린트 9.시수and수업 확인
 function cellMove(event) {
-  if (event.ctrlKey) {
-    // 현재칸 다음칸의 '빈칸' or '글자칸'에 따라 이동경로 정하기
-    console.log("ctrl");
-  }
-  if (event.shiftKey) {
-    // 드래그처럼 셀 연속블럭잡기기
-    console.log("shift");
-  }
   if (event.ctrlKey && event.shiftKey) {
     // 알지? 이거 ctrl 밑에 shift 넣어야할듯?
     console.log("ctrl + shift");
-  }
-
-  if (event.key === "ArrowUp" && rowIdx > 1) {
-    rowIdx--;
-  } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
-    rowIdx++;
-  } else if (event.key === "ArrowLeft" && colIdx > 0) {
-    colIdx--;
-  } else if (event.key === "ArrowRight" && colIdx < lastCol) {
-    colIdx++;
+  } else if (event.ctrlKey) {
+    // 현재칸 다음칸의 '빈칸' or '글자칸'에 따라 이동경로 정하기
+    if (currentCell.innerText.trim() === "") {
+      //현재가 빈칸
+      if (event.key === "ArrowUp" && rowIdx > 1) {
+        let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+        for (let i = rowIdx; i > 0; i--) {
+          if (nextCell[i].innerText.trim() !== "" || i === 1) {
+            rowIdx = i;
+            break;
+          }
+        }
+      } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+        let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+        for (let i = rowIdx; i <= lastRow; i++) {
+          if (nextCell[i].innerText.trim() !== "" || i === lastRow) {
+            rowIdx = i;
+            break;
+          }
+        }
+      } else if (event.key === "ArrowLeft" && colIdx > 0) {
+        let nextCell = currentTable.querySelectorAll(".textColumn");
+        for (let i = colIdx; i >= 0; i--) {
+          if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === 0) {
+            colIdx = i;
+            break;
+          }
+        }
+      } else if (event.key === "ArrowRight" && colIdx < lastCol) {
+        let nextCell = currentTable.querySelectorAll(".textColumn");
+        for (let i = colIdx; i <= lastCol; i++) {
+          if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === lastCol) {
+            colIdx = i;
+            break;
+          }
+        }
+      }
+    } else {
+      //현재가 글자칸
+      if (event.key === "ArrowUp" && rowIdx > 1) {
+        rowIdx--;
+        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+          //다음이 빈칸
+          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+          for (let i = rowIdx; i > 0; i--) {
+            if (nextCell[i].innerText.trim() !== "" || i === 1) {
+              rowIdx = i;
+              break;
+            }
+          }
+        } else {
+          //다음이 글자칸
+          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+          for (let i = rowIdx; i > 0; i--) {
+            if (nextCell[i].innerText.trim() === "") {
+              rowIdx = i + 1;
+              break;
+            }
+          }
+        }
+      } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+        rowIdx++;
+        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+          //다음이 빈칸
+          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+          for (let i = rowIdx; i <= lastRow; i++) {
+            if (nextCell[i].innerText.trim() !== "" || i === lastRow) {
+              rowIdx = i;
+              break;
+            }
+          }
+        } else {
+          //다음이 글자칸
+          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+          for (let i = rowIdx; i <= lastRow; i++) {
+            if (nextCell[i].innerText.trim() === "") {
+              rowIdx = i - 1;
+              break;
+            }
+          }
+        }
+      } else if (event.key === "ArrowLeft" && colIdx > 0) {
+        colIdx--;
+        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+          //다음이 빈칸
+          let nextCell = currentTable.querySelectorAll(".textColumn");
+          for (let i = colIdx; i >= 0; i--) {
+            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === 0) {
+              colIdx = i;
+              break;
+            }
+          }
+        } else {
+          //다음이 글자칸
+          let nextCell = currentTable.querySelectorAll(".textColumn");
+          for (let i = colIdx; i >= 0; i--) {
+            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+              colIdx = i + 1;
+              break;
+            }
+          }
+        }
+      } else if (event.key === "ArrowRight" && colIdx < lastCol) {
+        colIdx++;
+        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+          //다음이 빈칸
+          let nextCell = currentTable.querySelectorAll(".textColumn");
+          for (let i = colIdx; i <= lastCol; i++) {
+            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === lastCol) {
+              colIdx = i;
+              break;
+            }
+          }
+        } else {
+          //다음이 글자칸
+          let nextCell = currentTable.querySelectorAll(".textColumn");
+          for (let i = colIdx; i <= lastCol; i++) {
+            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+              colIdx = i - 1;
+              break;
+            }
+          }
+        }
+      }
+    }
+  } else if (event.shiftKey) {
+    if (event.key === "ArrowUp" && rowIdx > 1) {
+      dragIdx--;
+      while (currentColumn.querySelectorAll(".textCell")[dragIdx].classList.contains("hide")) {
+        dragIdx--;
+      }
+      cellDrag();
+    } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+      dragIdx++;
+      while (currentColumn.querySelectorAll(".textCell")[dragIdx].classList.contains("hide")) {
+        dragIdx++;
+      }
+      cellDrag();
+    }
+  } else {
+    if (event.key === "ArrowUp" && rowIdx > 1) {
+      rowIdx--;
+      while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
+        rowIdx--;
+      }
+    } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+      rowIdx++;
+      while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
+        rowIdx++;
+      }
+    } else if (event.key === "ArrowLeft" && colIdx > 0) {
+      colIdx--;
+      while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
+        rowIdx--;
+      }
+    } else if (event.key === "ArrowRight" && colIdx < lastCol) {
+      colIdx++;
+      while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
+        rowIdx--;
+      }
+    }
+    dragIdx = rowIdx;
+    clearDrag();
   }
   currentCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx];
+  currentColumn = currentCell.parentNode;
+  currentTable = currentColumn.parentNode;
   currentCell.focus();
   //표시
   markCurrentCell.innerText = "";
   markCurrentCell.innerText = rowIdx + ", " + colIdx;
 }
 
+function cellDrag() {
+  clearDrag();
+  if (rowIdx > dragIdx && dragIdx > 0) {
+    for (let i = dragIdx; i <= rowIdx; i++) {
+      currentColumn.querySelectorAll(".textCell")[i].classList.add("dragged");
+    }
+  } else if (dragIdx <= lastRow) {
+    for (let i = rowIdx; i <= dragIdx; i++) {
+      currentColumn.querySelectorAll(".textCell")[i].classList.add("dragged");
+    }
+  }
+}
+function clearDrag() {
+  let cellsInThisTable = currentTable.querySelectorAll(".textCell");
+  for (let i = 0; i < cellsInThisTable.length; i++) {
+    cellsInThisTable[i].classList.remove("dragged");
+  }
+}
+function mergeCell() {
+  if (!currentPage) {
+    return;
+  }
+  if (currentTable.querySelectorAll(".dragged").length > 1) {
+    //병합
+    let draggedCells = currentColumn.querySelectorAll(".dragged");
+    let numOfDraggedCells = draggedCells.length;
+    let totalLength = 0;
+    for (let i = 0; i < numOfDraggedCells; i++) {
+      totalLength += Number(draggedCells[i].style.flexGrow);
+    }
+    currentColumn.querySelectorAll(".dragged")[0].style.flex = totalLength;
+    for (let i = 1; i < numOfDraggedCells; i++) {
+      draggedCells[i].classList.add("hide");
+      draggedCells[i].style.flex = 0;
+      draggedCells[i].innerText = "";
+    }
+    currentCell = draggedCells[0];
+    currentCell.focus();
+    dragIdx = rowIdx;
+    clearDrag();
+  } else {
+    //해제
+    let numOfHiddenCells = currentCell.style.flexGrow - 1;
+    currentCell.style.flex = 1;
+    for (let i = 1; i <= numOfHiddenCells; i++) {
+      currentColumn.querySelectorAll(".textCell")[rowIdx + i].classList.remove("hide");
+      currentColumn.querySelectorAll(".textCell")[rowIdx + i].style.flex = 1;
+    }
+    currentCell.focus();
+  }
+}
 /////////////////////////////////////////////////////////FOOTER///////////////////////////////////////////////////////////
 // 버튼 좌클릭시 버튼+페이지 추가
 function addPage() {
@@ -448,3 +664,4 @@ btnAddRow.addEventListener("click", addRow);
 btnDeleteRow.addEventListener("click", deleteRow);
 btnHideTable.addEventListener("click", hideTable);
 selectScreenRatio.addEventListener("change", adjustScreenRatio);
+btnMerge.addEventListener("click", mergeCell);
