@@ -1,7 +1,9 @@
 document.addEventListener("contextmenu", (event) => {
   event.preventDefault();
 });
-///////////////////////////////////////////////////////////////////////////////////////////////// 변수
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 변수
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////
 const main = document.querySelector(".main");
 const footer = document.querySelector(".footer");
 //FOOTER
@@ -26,6 +28,12 @@ const btnMerge = document.querySelector(".btnMerge");
 // const textCell = document.querySelectorAll(".textCell");
 const markCurrentCell = document.querySelector(".markCurrentCell");
 const viewFont = document.querySelector(".viewFont");
+const btnFontUp = document.querySelector(".btnFontSizeUp");
+const btnFontDown = document.querySelector(".btnFontSizeDown");
+const btnFontBold = document.querySelector(".btnFontBold");
+const btnFontCancel = document.querySelector(".btnFontCancel");
+const btnViewTeachers = document.querySelector(".btnViewTeachers");
+const btnPrint = document.querySelector(".btnPrint");
 //
 let currentPageOrder;
 let tempPageOrder;
@@ -40,9 +48,11 @@ let rowIdx;
 let dragIdx;
 let lastCol;
 let lastRow;
-/////////////////////////////////////////////////////////////////////////////////////////////////// 함수
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 함수
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////HEADER////////////////////////////////////////
-// 현재 테이블 확인
+// 클릭된된 테이블 확인
 function findClickedTable(event) {
   if (document.querySelector(".tableClicked")) {
     clickedTable = document.querySelector(".tableClicked");
@@ -159,6 +169,7 @@ function addCol() {
       newTextCell.classList.add("textCell");
       if (j === 0) {
         newTextCell.classList.add("nameCell");
+        newTextCell.addEventListener("input", teacherNaming);
       }
       newTextCell.setAttribute("contenteditable", true);
       newTextCell.setAttribute("rowIndex", j);
@@ -181,6 +192,7 @@ function addCol() {
         newTextCell.classList.add("textCell");
         if (j === 0) {
           newTextCell.classList.add("nameCell");
+          newTextCell.addEventListener("input", teacherNaming);
         }
         newTextCell.setAttribute("contenteditable", true);
         newTextCell.setAttribute("rowIndex", j);
@@ -307,11 +319,110 @@ function adjustScreenRatio() {
   let abc = selectScreenRatio.value.slice(0, -1) * 1 * 0.01;
   currentPage.style.transform = `scale(${abc})`;
 }
-/////////////////////////////////////////////////////////HEADER///////////////////////////////////////////////////////////
-function findFontSize() {
-  //here
+function viewTeachers() {
+  // 클론방식
+  if (!currentPage) {
+    return;
+  }
+  lastCol = currentPage.querySelector(".dayTable").querySelectorAll(".textColumn").length;
+  lastRow = currentPage.querySelector(".timeColumn").querySelectorAll(".timeCell").length;
+
+  const newDiv = document.createElement("div");
+  newDiv.classList.add("teacherPage");
+  let tempWeek = [];
+  for (let i = 0; i < 5; i++) {
+    tempWeek.push(currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerText);
+  }
+
+  for (let i = 0; i < lastCol; i++) {
+    let newTeacherTable = document.createElement("div");
+    newTeacherTable.classList.add("teacherTable");
+
+    let cloneTimeColumn = currentPage.querySelector(".dayTable").querySelector(".timeColumn").cloneNode(true);
+    cloneTimeColumn.querySelector(".timeCell").innerText = currentPage.querySelector(".dayTable").querySelectorAll(".textColumn")[i].querySelector(".nameCell").innerText;
+    newTeacherTable.appendChild(cloneTimeColumn);
+
+    for (let j = 0; j < 5; j++) {
+      let cloneTextColumn = currentPage.querySelectorAll(".dayTable")[j].querySelectorAll(".textColumn")[i].cloneNode(true);
+      cloneTextColumn.querySelector(".textCell").innerText = currentPage.querySelectorAll(".dayTable")[j].querySelector(".timeCell").innerText;
+      newTeacherTable.appendChild(cloneTextColumn);
+    }
+    newTeacherTable.querySelectorAll(".textCell").forEach((txtcell) => {
+      txtcell.contentEditable = false;
+    });
+    newDiv.appendChild(newTeacherTable);
+  }
+
+  if (btnViewTeachers.innerText === "선생님별") {
+    currentPage.classList.add("hide");
+    btnViewTeachers.innerText = "요일별";
+    main.appendChild(newDiv);
+  } else {
+    document.querySelector(".teacherPage").remove();
+    currentPage.classList.remove("hide");
+    btnViewTeachers.innerText = "선생님별";
+  }
 }
-/////////////////////////////////////////////////////////MAIN///////////////////////////////////////////////////////////
+function customizedPrint() {
+  window.print();
+}
+// function viewTeachers() {
+// 새로 다 만들기
+//   if (!currentPage) {
+//     return;
+//   }
+//   lastCol = currentPage.querySelector(".dayTable").querySelectorAll(".textColumn").length;
+//   lastRow = currentPage.querySelector(".timeColumn").querySelectorAll(".timeCell").length;
+
+//   const newDiv = document.createElement("div");
+//   newDiv.classList.add("teacherPage");
+
+//   for (let i = 0; i < lastCol; i++) {
+//     let teacherTable = document.createElement("div");
+//     teacherTable.classList.add("teacherTable");
+
+//     let newTimeColumn = document.createElement("div");
+//     newTimeColumn.classList.add("timeColumn");
+//     for (let k = 0; k < lastRow; k++) {
+//       let newTimeCell = document.createElement("div");
+//       newTimeCell.classList.add("timeCell");
+//       if (k > 0) {
+//         newTimeCell.innerText = currentPage.querySelector(".timeColumn").querySelectorAll(".timeCell")[k].innerText;
+//       }
+//       newTimeColumn.appendChild(newTimeCell);
+//     }
+//     teacherTable.appendChild(newTimeColumn);
+
+//     for (let j = 0; j < 5; j++) {
+//       let newTextColumn = document.createElement("div");
+//       newTextColumn.classList.add("textColumn");
+//       for (let k = 0; k < lastRow; k++) {
+//         let newTextCell = document.createElement("div");
+//         newTextCell.classList.add("textCell");
+//         k === 0 ? newTextCell.classList.add("nameCell") : "";
+//         if (k === 0) {
+//           newTextCell.innerText = currentPage.querySelectorAll(".dayTable")[j].querySelector(".timeCell").innerText;
+//         }
+//         newTextCell.style.flex = 1;
+//         newTextColumn.appendChild(newTextCell);
+//       }
+//       teacherTable.appendChild(newTextColumn);
+//     }
+//     newDiv.appendChild(teacherTable);
+//   }
+//   console.log(currentPage);
+
+//   if (btnViewTeachers.innerText === "선생님별") {
+//     currentPage.classList.add("hide");
+//     btnViewTeachers.innerText = "요일별";
+//     main.appendChild(newDiv);
+//   } else {
+//     document.querySelector(".teacherPage").remove();
+//     currentPage.classList.remove("hide");
+//     btnViewTeachers.innerText = "선생님별";
+//   }
+// }
+
 function findCurrentCell(event) {
   currentCell = event.target;
   currentColumn = currentCell.parentNode;
@@ -322,12 +433,23 @@ function findCurrentCell(event) {
   rowIdx = Number(currentCell.getAttribute("rowIndex"));
   dragIdx = rowIdx;
   clearDrag();
+  findFontSize();
   //표시
   markCurrentCell.innerText = "";
   markCurrentCell.innerText = rowIdx + ", " + colIdx;
 }
-/////////////3.폰트 5.커서 6.탭/엔터 7.선생님별 8.프린트 9.시수and수업 확인
+function teacherNaming(event) {
+  let index = event.target.getAttribute("colIndex");
+  let namingTableIndex = event.target.parentNode.parentNode.getAttribute("tableIndex");
+  for (let i = 0; i < 7; i++) {
+    if (i !== Number(namingTableIndex)) {
+      currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".nameCell")[index].innerText = event.target.innerText;
+    }
+  }
+}
+//////////// 8.ctrl+C,V,Z 8.프린트특정영역 연습하기 9.시수and수업 확인 10.데이터 저장 및 불러오기
 function cellMove(event) {
+  let previousCell;
   if (event.ctrlKey && event.shiftKey) {
     if (event.key === "ArrowUp" && rowIdx > 1) {
       verticalCellDrag(-1);
@@ -366,35 +488,84 @@ function cellMove(event) {
       //줄바꿈 금지
       event.preventDefault();
     }
-  } else {
-    if (event.key === "ArrowUp" && rowIdx > 1) {
-      rowIdx--;
-      while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
-        rowIdx--;
-      }
-    } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+  } else if (event.key === "Enter") {
+    event.preventDefault();
+    previousCell = currentCell;
+    if (rowIdx < lastRow) {
       rowIdx++;
       while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
         rowIdx++;
       }
-    } else if (event.key === "ArrowLeft" && colIdx > 0) {
-      colIdx--;
-      while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
-        rowIdx--;
-      }
-    } else if (event.key === "ArrowRight" && colIdx < lastCol) {
+    }
+    previousCell.classList.remove("f2Cell");
+  } else if (event.key === "Tab") {
+    event.preventDefault();
+    previousCell = currentCell;
+    if (colIdx < lastCol) {
       colIdx++;
       while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
         rowIdx--;
       }
     }
+    previousCell.classList.remove("f2Cell");
+  } else if (event.altKey) {
+    event.preventDefault();
+  } else if (event.key === "Delete") {
+    let draggedCells = currentColumn.querySelectorAll(".dragged");
+    if (draggedCells.length > 1) {
+      draggedCells.forEach((cell) => {
+        cell.innerText = "";
+      });
+    } else {
+      currentCell.innerText = "";
+    }
+  } else if (event.key === "F2") {
+    event.preventDefault();
+    previousCell = currentCell;
+    currentCell.classList.add("f2Cell");
+  } else {
+    if (currentCell.classList.contains("f2Cell")) {
+      return;
+    }
+    if (event.key === "ArrowUp" && rowIdx > 1) {
+      rowIdx--;
+      while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
+        rowIdx--;
+      }
+      previousCell = currentCell;
+    } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+      rowIdx++;
+      while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
+        rowIdx++;
+      }
+      previousCell = currentCell;
+    } else if (event.key === "ArrowLeft" && colIdx > 0) {
+      colIdx--;
+      while (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
+        rowIdx--;
+      }
+      previousCell = currentCell;
+    } else if (event.key === "ArrowRight" && colIdx < lastCol) {
+      colIdx++;
+      while (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
+        rowIdx--;
+      }
+      previousCell = currentCell;
+    } else {
+      if (!currentCell.classList.contains("cursorOn")) {
+        currentCell.innerText = "";
+      }
+      currentCell.classList.add("cursorOn");
+    }
     dragIdx = rowIdx;
     clearDrag();
   }
+  previousCell?.classList.remove("cursorOn");
   currentCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx];
   currentColumn = currentCell.parentNode;
   currentTable = currentColumn.parentNode;
   currentCell.focus();
+  findFontSize();
   //표시
   markCurrentCell.innerText = "";
   markCurrentCell.innerText = rowIdx + ", " + colIdx;
@@ -585,6 +756,80 @@ function mergeCell() {
     currentCell.focus();
   }
 }
+function fontSizeUp() {
+  if (!currentPage || !currentColumn) {
+    return;
+  }
+  let draggedCells = currentColumn.querySelectorAll(".dragged");
+  if (draggedCells.length > 1) {
+    draggedCells.forEach((cell) => {
+      if (cell.style.fontSize === "") {
+        cell.style.fontSize = "100%";
+      }
+      cell.style.fontSize = Number(cell.style.fontSize.slice(0, -1)) + 10 + "%";
+    });
+  } else {
+    if (currentCell.style.fontSize === "") {
+      currentCell.style.fontSize = "100%";
+    }
+    currentCell.style.fontSize = Number(currentCell.style.fontSize.slice(0, -1)) + 10 + "%";
+  }
+  findFontSize();
+}
+function fontSizeDown() {
+  if (!currentPage || !currentColumn) {
+    return;
+  }
+  let draggedCells = currentColumn.querySelectorAll(".dragged");
+  if (draggedCells.length > 1) {
+    draggedCells.forEach((cell) => {
+      if (cell.style.fontSize === "") {
+        cell.style.fontSize = "100%";
+      }
+      cell.style.fontSize = Number(cell.style.fontSize.slice(0, -1)) - 10 + "%";
+    });
+  } else {
+    if (currentCell.style.fontSize === "") {
+      currentCell.style.fontSize = "100%";
+    }
+    currentCell.style.fontSize = Number(currentCell.style.fontSize.slice(0, -1)) - 10 + "%";
+  }
+  findFontSize();
+}
+function fontBold() {
+  if (!currentPage || !currentColumn) {
+    return;
+  }
+  let draggedCells = currentColumn.querySelectorAll(".dragged");
+  if (draggedCells.length > 1) {
+    draggedCells.forEach((cell) => {
+      cell.classList.toggle("fontBold");
+    });
+  } else {
+    currentCell.classList.toggle("fontBold");
+  }
+}
+function fontCancel() {
+  if (!currentPage || !currentColumn) {
+    return;
+  }
+  let draggedCells = currentColumn.querySelectorAll(".dragged");
+  if (draggedCells.length > 1) {
+    draggedCells.forEach((cell) => {
+      cell.classList.toggle("fontCancel");
+    });
+  } else {
+    currentCell.classList.toggle("fontCancel");
+  }
+}
+function findFontSize() {
+  //here
+  if (currentCell.style.fontSize === "") {
+    viewFont.innerText = "100%";
+  } else {
+    viewFont.innerText = currentCell.style.fontSize;
+  }
+}
 /////////////////////////////////////////////////////////FOOTER///////////////////////////////////////////////////////////
 // 버튼 좌클릭시 버튼+페이지 추가
 function addPage() {
@@ -630,6 +875,7 @@ function openPage(event) {
     for (let i = 0; i < 7; i++) {
       const newTable = document.createElement("div");
       newTable.classList.add("dayTable");
+      newTable.setAttribute("tableIndex", i);
       currentPage.appendChild(newTable);
 
       const newTimeColumn = document.createElement("div");
@@ -700,3 +946,9 @@ btnDeleteRow.addEventListener("click", deleteRow);
 btnHideTable.addEventListener("click", hideTable);
 selectScreenRatio.addEventListener("change", adjustScreenRatio);
 btnMerge.addEventListener("click", mergeCell);
+btnFontUp.addEventListener("click", fontSizeUp);
+btnFontDown.addEventListener("click", fontSizeDown);
+btnFontBold.addEventListener("click", fontBold);
+btnFontCancel.addEventListener("click", fontCancel);
+btnViewTeachers.addEventListener("click", viewTeachers);
+btnPrint.addEventListener("click", customizedPrint);
