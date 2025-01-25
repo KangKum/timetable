@@ -1,0 +1,126 @@
+else if (event.ctrlKey) {
+    // 현재칸 다음칸의 '빈칸' or '글자칸'에 따라 이동경로 정하기
+    if (currentCell.innerText.trim() === "") {
+      //현재가 빈칸
+      if (event.key === "ArrowUp" && rowIdx > 1) {
+        let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+        for (let i = rowIdx; i > 0; i--) {
+          if (nextCell[i].innerText.trim() !== "" || i === 1) {
+            rowIdx = i;
+            break;
+          }
+        }
+      } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+        let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+        for (let i = rowIdx; i <= lastRow; i++) {
+          if (nextCell[i].innerText.trim() !== "" || i === lastRow) {
+            rowIdx = i;
+            break;
+          }
+        }
+      } else if (event.key === "ArrowLeft" && colIdx > 0) {
+        let nextCell = currentTable.querySelectorAll(".textColumn");
+        for (let i = colIdx; i >= 0; i--) {
+          if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === 0) {
+            colIdx = i;
+            break;
+          }
+        }
+      } else if (event.key === "ArrowRight" && colIdx < lastCol) {
+        let nextCell = currentTable.querySelectorAll(".textColumn");
+        for (let i = colIdx; i <= lastCol; i++) {
+          if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === lastCol) {
+            colIdx = i;
+            break;
+          }
+        }
+      }
+    } else {
+      //현재가 글자칸
+      if (event.key === "ArrowUp" && rowIdx > 1) {
+        rowIdx--;
+        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+          //다음이 빈칸
+          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+          for (let i = rowIdx; i > 0; i--) {
+            if (nextCell[i].innerText.trim() !== "" || i === 1) {
+              rowIdx = i;
+              break;
+            }
+          }
+        } else {
+          //다음이 글자칸
+          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+          for (let i = rowIdx; i > 0; i--) {
+            if (nextCell[i].innerText.trim() === "") {
+              rowIdx = i + 1;
+              break;
+            }
+          }
+        }
+      } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+        rowIdx++;
+        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+          //다음이 빈칸
+          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+          for (let i = rowIdx; i <= lastRow; i++) {
+            if (nextCell[i].innerText.trim() !== "" || i === lastRow) {
+              rowIdx = i;
+              break;
+            }
+          }
+        } else {
+          //다음이 글자칸
+          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
+          for (let i = rowIdx; i <= lastRow; i++) {
+            if (nextCell[i].innerText.trim() === "") {
+              rowIdx = i - 1;
+              break;
+            }
+          }
+        }
+      } else if (event.key === "ArrowLeft" && colIdx > 0) {
+        colIdx--;
+        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+          //다음이 빈칸
+          let nextCell = currentTable.querySelectorAll(".textColumn");
+          for (let i = colIdx; i >= 0; i--) {
+            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === 0) {
+              colIdx = i;
+              break;
+            }
+          }
+        } else {
+          //다음이 글자칸
+          let nextCell = currentTable.querySelectorAll(".textColumn");
+          for (let i = colIdx; i >= 0; i--) {
+            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+              colIdx = i + 1;
+              break;
+            }
+          }
+        }
+      } else if (event.key === "ArrowRight" && colIdx < lastCol) {
+        colIdx++;
+        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+          //다음이 빈칸
+          let nextCell = currentTable.querySelectorAll(".textColumn");
+          for (let i = colIdx; i <= lastCol; i++) {
+            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === lastCol) {
+              colIdx = i;
+              break;
+            }
+          }
+        } else {
+          //다음이 글자칸
+          let nextCell = currentTable.querySelectorAll(".textColumn");
+          for (let i = colIdx; i <= lastCol; i++) {
+            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
+              colIdx = i - 1;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }

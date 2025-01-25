@@ -25,6 +25,7 @@ const selectScreenRatio = document.querySelector(".selectScreenRatio");
 const btnMerge = document.querySelector(".btnMerge");
 // const textCell = document.querySelectorAll(".textCell");
 const markCurrentCell = document.querySelector(".markCurrentCell");
+const viewFont = document.querySelector(".viewFont");
 //
 let currentPageOrder;
 let tempPageOrder;
@@ -306,6 +307,10 @@ function adjustScreenRatio() {
   let abc = selectScreenRatio.value.slice(0, -1) * 1 * 0.01;
   currentPage.style.transform = `scale(${abc})`;
 }
+/////////////////////////////////////////////////////////HEADER///////////////////////////////////////////////////////////
+function findFontSize() {
+  //here
+}
 /////////////////////////////////////////////////////////MAIN///////////////////////////////////////////////////////////
 function findCurrentCell(event) {
   currentCell = event.target;
@@ -321,149 +326,45 @@ function findCurrentCell(event) {
   markCurrentCell.innerText = "";
   markCurrentCell.innerText = rowIdx + ", " + colIdx;
 }
-/////////////1.Ctrl이동<다음셀확인기법> 2.Ctrl+Shift이동 3.폰트 4.정렬(여러줄/가로길게) 5.커서 6.탭/엔터 7.선생님별 8.프린트 9.시수and수업 확인
+/////////////3.폰트 5.커서 6.탭/엔터 7.선생님별 8.프린트 9.시수and수업 확인
 function cellMove(event) {
   if (event.ctrlKey && event.shiftKey) {
-    // 알지? 이거 ctrl 밑에 shift 넣어야할듯?
-    console.log("ctrl + shift");
-  } else if (event.ctrlKey) {
-    // 현재칸 다음칸의 '빈칸' or '글자칸'에 따라 이동경로 정하기
-    if (currentCell.innerText.trim() === "") {
-      //현재가 빈칸
-      if (event.key === "ArrowUp" && rowIdx > 1) {
-        let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
-        for (let i = rowIdx; i > 0; i--) {
-          if (nextCell[i].innerText.trim() !== "" || i === 1) {
-            rowIdx = i;
-            break;
-          }
-        }
-      } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
-        let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
-        for (let i = rowIdx; i <= lastRow; i++) {
-          if (nextCell[i].innerText.trim() !== "" || i === lastRow) {
-            rowIdx = i;
-            break;
-          }
-        }
-      } else if (event.key === "ArrowLeft" && colIdx > 0) {
-        let nextCell = currentTable.querySelectorAll(".textColumn");
-        for (let i = colIdx; i >= 0; i--) {
-          if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === 0) {
-            colIdx = i;
-            break;
-          }
-        }
-      } else if (event.key === "ArrowRight" && colIdx < lastCol) {
-        let nextCell = currentTable.querySelectorAll(".textColumn");
-        for (let i = colIdx; i <= lastCol; i++) {
-          if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === lastCol) {
-            colIdx = i;
-            break;
-          }
-        }
-      }
-    } else {
-      //현재가 글자칸
-      if (event.key === "ArrowUp" && rowIdx > 1) {
-        rowIdx--;
-        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
-          //다음이 빈칸
-          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
-          for (let i = rowIdx; i > 0; i--) {
-            if (nextCell[i].innerText.trim() !== "" || i === 1) {
-              rowIdx = i;
-              break;
-            }
-          }
-        } else {
-          //다음이 글자칸
-          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
-          for (let i = rowIdx; i > 0; i--) {
-            if (nextCell[i].innerText.trim() === "") {
-              rowIdx = i + 1;
-              break;
-            }
-          }
-        }
-      } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
-        rowIdx++;
-        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
-          //다음이 빈칸
-          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
-          for (let i = rowIdx; i <= lastRow; i++) {
-            if (nextCell[i].innerText.trim() !== "" || i === lastRow) {
-              rowIdx = i;
-              break;
-            }
-          }
-        } else {
-          //다음이 글자칸
-          let nextCell = currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell");
-          for (let i = rowIdx; i <= lastRow; i++) {
-            if (nextCell[i].innerText.trim() === "") {
-              rowIdx = i - 1;
-              break;
-            }
-          }
-        }
-      } else if (event.key === "ArrowLeft" && colIdx > 0) {
-        colIdx--;
-        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
-          //다음이 빈칸
-          let nextCell = currentTable.querySelectorAll(".textColumn");
-          for (let i = colIdx; i >= 0; i--) {
-            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === 0) {
-              colIdx = i;
-              break;
-            }
-          }
-        } else {
-          //다음이 글자칸
-          let nextCell = currentTable.querySelectorAll(".textColumn");
-          for (let i = colIdx; i >= 0; i--) {
-            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
-              colIdx = i + 1;
-              break;
-            }
-          }
-        }
-      } else if (event.key === "ArrowRight" && colIdx < lastCol) {
-        colIdx++;
-        if (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
-          //다음이 빈칸
-          let nextCell = currentTable.querySelectorAll(".textColumn");
-          for (let i = colIdx; i <= lastCol; i++) {
-            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() !== "" || i === lastCol) {
-              colIdx = i;
-              break;
-            }
-          }
-        } else {
-          //다음이 글자칸
-          let nextCell = currentTable.querySelectorAll(".textColumn");
-          for (let i = colIdx; i <= lastCol; i++) {
-            if (nextCell[i].querySelectorAll(".textCell")[rowIdx].innerText.trim() === "") {
-              colIdx = i - 1;
-              break;
-            }
-          }
-        }
-      }
+    if (event.key === "ArrowUp" && rowIdx > 1) {
+      verticalCellDrag(-1);
+      cellDrag();
+    } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+      verticalCellDrag(1);
+      cellDrag();
     }
+  } else if (event.ctrlKey) {
+    if (event.key === "ArrowUp" && rowIdx > 1) {
+      verticalMove(-1);
+    } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+      verticalMove(1);
+    } else if (event.key === "ArrowLeft" && colIdx > 0) {
+      horizontalMove(-1);
+    } else if (event.key === "ArrowRight" && colIdx < lastCol) {
+      horizontalMove(1);
+    }
+    dragIdx = rowIdx;
+    clearDrag();
   } else if (event.shiftKey) {
+    let vertical = currentColumn.querySelectorAll(".textCell");
     if (event.key === "ArrowUp" && rowIdx > 1) {
       dragIdx--;
-      while (currentColumn.querySelectorAll(".textCell")[dragIdx].classList.contains("hide")) {
+      while (vertical[dragIdx].classList.contains("hide")) {
         dragIdx--;
       }
       cellDrag();
     } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
       dragIdx++;
-      while (currentColumn.querySelectorAll(".textCell")[dragIdx].classList.contains("hide")) {
+      while (vertical[dragIdx].classList.contains("hide")) {
         dragIdx++;
       }
       cellDrag();
+    } else if (event.key === "Enter") {
+      //줄바꿈 금지
+      event.preventDefault();
     }
   } else {
     if (event.key === "ArrowUp" && rowIdx > 1) {
@@ -498,16 +399,150 @@ function cellMove(event) {
   markCurrentCell.innerText = "";
   markCurrentCell.innerText = rowIdx + ", " + colIdx;
 }
-
+function verticalCellDrag(i) {
+  let vertical = currentCell.parentNode.querySelectorAll(".textCell");
+  //현재 셀이 빈셀이면
+  if (vertical[dragIdx].innerText.trim() === "") {
+    if (i < 0) {
+      while (dragIdx > 1 && vertical[dragIdx].innerText.trim() === "") {
+        dragIdx--;
+      }
+    } else {
+      while (dragIdx < lastRow && vertical[dragIdx].innerText.trim() === "") {
+        dragIdx++;
+      }
+    }
+  } else {
+    //현재 셀이 글자셀이면 // 다음 셀이 빈셀 or 글자셀이면
+    if (i < 0) {
+      if (vertical[dragIdx - 1].innerText.trim() === "") {
+        //다음 셀이 빈셀
+        while (dragIdx > 1 && vertical[dragIdx - 1].innerText.trim() === "") {
+          dragIdx--;
+        }
+      } else {
+        //다음 셀이 글자셀
+        while (dragIdx > 1 && vertical[dragIdx].innerText.trim() !== "") {
+          dragIdx--;
+        }
+        dragIdx++;
+      }
+    } else {
+      if (vertical[dragIdx + 1].innerText.trim() === "") {
+        while (dragIdx < lastRow && vertical[dragIdx + 1].innerText.trim() === "") {
+          dragIdx++;
+        }
+      } else {
+        while (dragIdx < lastRow && vertical[dragIdx].innerText.trim() !== "") {
+          dragIdx++;
+        }
+        dragIdx--;
+      }
+    }
+  }
+}
+function verticalMove(i) {
+  let vertical = currentCell.parentNode.querySelectorAll(".textCell");
+  if (currentCell.innerText.trim() === "") {
+    //현재셀 빈칸
+    if (i < 0) {
+      while (rowIdx + i > 1 && vertical[rowIdx + i].innerText.trim() === "") {
+        rowIdx--;
+      }
+      rowIdx--;
+    } else {
+      while (rowIdx + i < lastRow && vertical[rowIdx + i].innerText.trim() === "") {
+        rowIdx++;
+      }
+      rowIdx++;
+    }
+  } else {
+    //현재셀 글자칸
+    if (vertical[rowIdx + i].innerText.trim() === "") {
+      //다음셀 빈칸
+      if (i < 0) {
+        while (rowIdx + i > 1 && vertical[rowIdx + i].innerText.trim() === "") {
+          rowIdx--;
+        }
+        rowIdx--;
+      } else {
+        while (rowIdx + i < lastRow && vertical[rowIdx + i].innerText.trim() === "") {
+          rowIdx++;
+        }
+        rowIdx++;
+      }
+    } else {
+      //다음셀 글자칸
+      if (i < 0) {
+        while (rowIdx + i > 1 && vertical[rowIdx + i].innerText.trim() !== "") {
+          rowIdx--;
+        }
+      } else {
+        while (rowIdx + i < lastRow && vertical[rowIdx + i].innerText.trim() !== "") {
+          rowIdx++;
+        }
+      }
+    }
+  }
+}
+function horizontalMove(i) {
+  let columnsInThisTable = currentTable.querySelectorAll(".textColumn");
+  let horizontal = [];
+  for (let j = 0; j < columnsInThisTable.length; j++) {
+    horizontal.push(columnsInThisTable[j].querySelectorAll(".textCell")[rowIdx]);
+  }
+  if (currentCell.innerText.trim() === "") {
+    //현재셀 빈칸
+    if (i < 0) {
+      while (colIdx + i > 0 && horizontal[colIdx + i].innerText.trim() === "") {
+        colIdx--;
+      }
+      colIdx--;
+    } else {
+      while (colIdx + i < lastCol && horizontal[colIdx + i].innerText.trim() === "") {
+        colIdx++;
+      }
+      colIdx++;
+    }
+  } else {
+    //현재셀 글자칸
+    if (horizontal[colIdx + i].innerText.trim() === "") {
+      // 다음셀 빈칸
+      if (i < 0) {
+        while (colIdx + i > 0 && horizontal[colIdx + i].innerText.trim() === "") {
+          colIdx--;
+        }
+        colIdx--;
+      } else {
+        while (colIdx + i < lastCol && horizontal[colIdx + i].innerText.trim() === "") {
+          colIdx++;
+        }
+        colIdx++;
+      }
+    } else {
+      // 다음셀 글자칸
+      if (i < 0) {
+        while (colIdx + i > 0 && horizontal[colIdx + i].innerText.trim() !== "") {
+          colIdx--;
+        }
+      } else {
+        while (colIdx + i < lastCol && horizontal[colIdx + i].innerText.trim() !== "") {
+          colIdx++;
+        }
+      }
+    }
+  }
+}
 function cellDrag() {
   clearDrag();
+  let vertical = currentColumn.querySelectorAll(".textCell");
   if (rowIdx > dragIdx && dragIdx > 0) {
     for (let i = dragIdx; i <= rowIdx; i++) {
-      currentColumn.querySelectorAll(".textCell")[i].classList.add("dragged");
+      vertical[i].classList.add("dragged");
     }
   } else if (dragIdx <= lastRow) {
     for (let i = rowIdx; i <= dragIdx; i++) {
-      currentColumn.querySelectorAll(".textCell")[i].classList.add("dragged");
+      vertical[i].classList.add("dragged");
     }
   }
 }

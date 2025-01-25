@@ -27,6 +27,10 @@ body {
   font-size: 90%;
   font-weight: bold;
 }
+.viewFont {
+  height: 100%;
+  width: 5vh;
+}
 .markCurrentCell {
   border: 2px solid blue;
   width: 100px;
@@ -80,19 +84,19 @@ body {
 }
 .textColumn {
   height: 100%;
-  width: 10vh;
+  min-width: 10vh;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
   font-size: 90%;
 }
 .textCell {
-  /* flex: 1; */
   min-width: 100%;
   outline: 1px solid black;
   display: flex;
   justify-content: center;
   align-items: center;
+  white-space: nowrap;
 }
 .nameCell {
   background-color: rgb(229, 230, 231);
