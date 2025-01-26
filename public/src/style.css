@@ -50,6 +50,14 @@ body {
   overflow-x: auto;
   overflow-y: auto;
 }
+.printPage {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  display: none;
+}
 .teacherPage {
   height: 100%;
   width: 100%;
@@ -216,6 +224,11 @@ body {
   width: 100%;
 }
 /*  */
+.ctrlCells {
+  outline: 2px dotted rgb(144, 148, 224);
+}
+
+/*  */
 button {
   cursor: pointer;
   border: 0;
@@ -233,4 +246,54 @@ button:hover {
 }
 .hide {
   display: none;
+}
+
+@media print {
+  * {
+    box-sizing: border-box;
+  }
+  .header,
+  .footer,
+  .main {
+    display: none;
+  }
+  .printPage {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .printPage .dayTable {
+    height: 99.8%;
+    width: fit-content;
+    display: flex;
+    flex-direction: row;
+  }
+  .printPage .timeColumn {
+    height: 100%;
+    min-width: 10vh;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    font-size: 80%;
+    background-color: rgb(229, 230, 231);
+  }
+  .printPage .timeCell {
+    flex: 1;
+    width: 100%;
+    outline: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .printPage .textColumn {
+    height: 100%;
+    min-width: 10vh;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    font-size: 90%;
+  }
 }

@@ -6,6 +6,7 @@ document.addEventListener("contextmenu", (event) => {
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 const main = document.querySelector(".main");
 const footer = document.querySelector(".footer");
+const printPage = document.querySelector(".printPage");
 //FOOTER
 const btnAddPage = document.querySelector(".btnAddPage");
 const modal = document.querySelector(".modalBackground");
@@ -48,6 +49,8 @@ let rowIdx;
 let dragIdx;
 let lastCol;
 let lastRow;
+//
+let dataCtrl = [];
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 함수
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -364,7 +367,32 @@ function viewTeachers() {
   }
 }
 function customizedPrint() {
-  window.print();
+  if (!currentPage) {
+    return;
+  }
+  if (document.querySelector(".teacherPage")) {
+    //선생님별
+    for (let i = 0; i < lastCol; i++) {
+      let clonePage = document.querySelectorAll(".teacherTable")[i].cloneNode(true);
+      printPage.appendChild(clonePage);
+      window.print();
+      printPage.innerHTML = "";
+    }
+  } else {
+    //요일별별
+    let mainWidth = Number(window.getComputedStyle(main).width.slice(0, -2));
+    for (let i = 0; i < 7; i++) {
+      let clonePage = document.querySelectorAll(".dayTable")[i].cloneNode(true);
+      let clonePageWidth = Number(window.getComputedStyle(document.querySelectorAll(".dayTable")[i]).width.slice(0, -2));
+      if (clonePageWidth > mainWidth + 0.1) {
+        let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.1;
+        clonePage.style.transform = `scale(${1 - ratio})`;
+      }
+      printPage.appendChild(clonePage);
+      window.print();
+      printPage.innerHTML = "";
+    }
+  }
 }
 // function viewTeachers() {
 // 새로 다 만들기
@@ -447,7 +475,7 @@ function teacherNaming(event) {
     }
   }
 }
-//////////// 8.ctrl+C,V,Z 8.프린트특정영역 연습하기 9.시수and수업 확인 10.데이터 저장 및 불러오기
+//////////// 8.ctrl+X,Z 9.시수and수업 확인 10.데이터 저장 및 불러오기
 function cellMove(event) {
   let previousCell;
   if (event.ctrlKey && event.shiftKey) {
@@ -467,18 +495,32 @@ function cellMove(event) {
       horizontalMove(-1);
     } else if (event.key === "ArrowRight" && colIdx < lastCol) {
       horizontalMove(1);
+    } else if (event.key === "c" || event.key === "C") {
+      event.preventDefault();
+      ctrlC();
+    } else if (event.key === "x" || event.key === "X") {
+      event.preventDefault();
+      ctrlX();
+    } else if (event.key === "v" || event.key === "V") {
+      event.preventDefault();
+      ctrlV();
+    } else if (event.key === "z" || event.key === "Z") {
+      event.preventDefault();
+      ctrlZ();
     }
-    dragIdx = rowIdx;
-    clearDrag();
+    // dragIdx = rowIdx;
+    // clearDrag();
   } else if (event.shiftKey) {
     let vertical = currentColumn.querySelectorAll(".textCell");
     if (event.key === "ArrowUp" && rowIdx > 1) {
+      event.preventDefault();
       dragIdx--;
       while (vertical[dragIdx].classList.contains("hide")) {
         dragIdx--;
       }
       cellDrag();
     } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+      event.preventDefault();
       dragIdx++;
       while (vertical[dragIdx].classList.contains("hide")) {
         dragIdx++;
@@ -655,6 +697,8 @@ function verticalMove(i) {
       }
     }
   }
+  dragIdx = rowIdx;
+  clearDrag();
 }
 function horizontalMove(i) {
   let columnsInThisTable = currentTable.querySelectorAll(".textColumn");
@@ -703,6 +747,8 @@ function horizontalMove(i) {
       }
     }
   }
+  dragIdx = rowIdx;
+  clearDrag();
 }
 function cellDrag() {
   clearDrag();
@@ -829,6 +875,94 @@ function findFontSize() {
   } else {
     viewFont.innerText = currentCell.style.fontSize;
   }
+}
+function cancelCtrl() {
+  if (currentPage.querySelector(".ctrlCells")) {
+    let allCtrlCells = currentPage.querySelectorAll(".ctrlCells");
+    for (let i = 0; i < allCtrlCells.length; i++) {
+      allCtrlCells[i].classList.remove("ctrlCells");
+    }
+  }
+}
+function ctrlC() {
+  dataCtrl = [];
+  cancelCtrl();
+
+  let draggedCells = currentTable.querySelectorAll(".dragged");
+  if (draggedCells.length > 1) {
+    draggedCells.forEach((cell) => {
+      cell.classList.add("ctrlCells");
+      let tempData = {};
+      tempData.flexGrow = Number(cell.style.flexGrow); // 1
+      tempData.text = cell.innerText; // 2
+      tempData.fontSize = cell.style.fontSize; // 3
+      if (cell.classList.contains("fontBold")) {
+        tempData.fontBold = "bold"; // 4
+      }
+      if (cell.classList.contains("fontCancel")) {
+        tempData.fontCancel = "cancel"; // 5
+      }
+      dataCtrl.push(tempData);
+    });
+    console.log(dataCtrl);
+  } else {
+    currentCell.classList.add("ctrlCells");
+    let tempData = {};
+    tempData.flexGrow = Number(currentCell.style.flexGrow); // 1
+    tempData.text = currentCell.innerText; // 2
+    tempData.fontSize = currentCell.style.fontSize; // 3
+    if (currentCell.classList.contains("fontBold")) {
+      tempData.fontBold = "bold"; // 4
+    }
+    if (currentCell.classList.contains("fontCancel")) {
+      tempData.fontCancel = "cancel"; // 5
+    }
+    dataCtrl.push(tempData);
+    console.log(dataCtrl);
+  }
+}
+function ctrlX() {
+  dataCtrl = [];
+  cancelCtrl();
+
+  let draggedCells = currentTable.querySelectorAll(".dragged");
+  if (draggedCells.length > 1) {
+    draggedCells.forEach((cell) => {
+      cell.classList.add("ctrlX");
+    });
+  } else {
+    currentCell.classList.add("ctrlX");
+  }
+}
+function ctrlV() {
+  let startingCell = currentColumn.querySelectorAll(".textCell");
+
+  //기존셀에 자리있나 확인
+  let totalFlexGrow = dataCtrl.reduce((sum, obj) => sum + obj.flexGrow, 0) - 1;
+  if (rowIdx + totalFlexGrow > lastRow || dataCtrl[0].flexGrow < startingCell[rowIdx].style.flexGrow || (startingCell[rowIdx + totalFlexGrow].classList.contains("hide") && startingCell[rowIdx + totalFlexGrow + 1].classList.contains("hide")) || startingCell[rowIdx + totalFlexGrow].style.flexGrow > 1) {
+    alert("범위가 맞지 않습니다");
+    return;
+  }
+
+  for (let i = 0; i < dataCtrl.length; i++) {
+    if (dataCtrl[i].flexGrow > 1) {
+      for (let j = 1; j < dataCtrl[i].flexGrow; j++) {
+        startingCell[rowIdx + i + j].classList.add("hide");
+      }
+    }
+    startingCell[rowIdx + i].style.flexGrow = dataCtrl[i].flexGrow; // 1
+    startingCell[rowIdx + i].innerText = dataCtrl[i].text; // 2
+    startingCell[rowIdx + i].style.fontSize = dataCtrl[i].fontSize; // 3
+    if (dataCtrl[i].fontBold) {
+      startingCell[rowIdx + i].classList.add("fontBold"); // 4
+    }
+    if (dataCtrl[i].fontCancel) {
+      startingCell[rowIdx + i].classList.add("fontCancel"); // 5
+    }
+  }
+}
+function ctrlZ() {
+  console.log("ctrlZ");
 }
 /////////////////////////////////////////////////////////FOOTER///////////////////////////////////////////////////////////
 // 버튼 좌클릭시 버튼+페이지 추가
