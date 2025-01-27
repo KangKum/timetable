@@ -51,6 +51,9 @@ let lastCol;
 let lastRow;
 //
 let dataCtrl = [];
+let ctrlX = false;
+let previousMovement = [];
+// let originalMovement = [];
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 함수
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -394,63 +397,6 @@ function customizedPrint() {
     }
   }
 }
-// function viewTeachers() {
-// 새로 다 만들기
-//   if (!currentPage) {
-//     return;
-//   }
-//   lastCol = currentPage.querySelector(".dayTable").querySelectorAll(".textColumn").length;
-//   lastRow = currentPage.querySelector(".timeColumn").querySelectorAll(".timeCell").length;
-
-//   const newDiv = document.createElement("div");
-//   newDiv.classList.add("teacherPage");
-
-//   for (let i = 0; i < lastCol; i++) {
-//     let teacherTable = document.createElement("div");
-//     teacherTable.classList.add("teacherTable");
-
-//     let newTimeColumn = document.createElement("div");
-//     newTimeColumn.classList.add("timeColumn");
-//     for (let k = 0; k < lastRow; k++) {
-//       let newTimeCell = document.createElement("div");
-//       newTimeCell.classList.add("timeCell");
-//       if (k > 0) {
-//         newTimeCell.innerText = currentPage.querySelector(".timeColumn").querySelectorAll(".timeCell")[k].innerText;
-//       }
-//       newTimeColumn.appendChild(newTimeCell);
-//     }
-//     teacherTable.appendChild(newTimeColumn);
-
-//     for (let j = 0; j < 5; j++) {
-//       let newTextColumn = document.createElement("div");
-//       newTextColumn.classList.add("textColumn");
-//       for (let k = 0; k < lastRow; k++) {
-//         let newTextCell = document.createElement("div");
-//         newTextCell.classList.add("textCell");
-//         k === 0 ? newTextCell.classList.add("nameCell") : "";
-//         if (k === 0) {
-//           newTextCell.innerText = currentPage.querySelectorAll(".dayTable")[j].querySelector(".timeCell").innerText;
-//         }
-//         newTextCell.style.flex = 1;
-//         newTextColumn.appendChild(newTextCell);
-//       }
-//       teacherTable.appendChild(newTextColumn);
-//     }
-//     newDiv.appendChild(teacherTable);
-//   }
-//   console.log(currentPage);
-
-//   if (btnViewTeachers.innerText === "선생님별") {
-//     currentPage.classList.add("hide");
-//     btnViewTeachers.innerText = "요일별";
-//     main.appendChild(newDiv);
-//   } else {
-//     document.querySelector(".teacherPage").remove();
-//     currentPage.classList.remove("hide");
-//     btnViewTeachers.innerText = "선생님별";
-//   }
-// }
-
 function findCurrentCell(event) {
   currentCell = event.target;
   currentColumn = currentCell.parentNode;
@@ -475,14 +421,16 @@ function teacherNaming(event) {
     }
   }
 }
-//////////// 8.ctrl+X,Z 9.시수and수업 확인 10.데이터 저장 및 불러오기
+//////////// 8.ctrl+Z 9.시수and수업 확인 10.데이터 저장 및 불러오기 11. 특정 테이블만 프린트
 function cellMove(event) {
   let previousCell;
   if (event.ctrlKey && event.shiftKey) {
     if (event.key === "ArrowUp" && rowIdx > 1) {
+      event.preventDefault();
       verticalCellDrag(-1);
       cellDrag();
     } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+      event.preventDefault();
       verticalCellDrag(1);
       cellDrag();
     }
@@ -497,10 +445,10 @@ function cellMove(event) {
       horizontalMove(1);
     } else if (event.key === "c" || event.key === "C") {
       event.preventDefault();
-      ctrlC();
+      ctrlC(false);
     } else if (event.key === "x" || event.key === "X") {
       event.preventDefault();
-      ctrlX();
+      ctrlC(true);
     } else if (event.key === "v" || event.key === "V") {
       event.preventDefault();
       ctrlV();
@@ -594,6 +542,9 @@ function cellMove(event) {
       }
       previousCell = currentCell;
     } else {
+      //기존 텍스트 저장
+      rememberMovement(currentCell, "text", currentCell.innerText);
+
       if (!currentCell.classList.contains("cursorOn")) {
         currentCell.innerText = "";
       }
@@ -633,6 +584,9 @@ function verticalCellDrag(i) {
         while (dragIdx > 1 && vertical[dragIdx - 1].innerText.trim() === "") {
           dragIdx--;
         }
+        if (vertical[dragIdx].classList.contains("hide")) {
+          dragIdx--;
+        }
       } else {
         //다음 셀이 글자셀
         while (dragIdx > 1 && vertical[dragIdx].innerText.trim() !== "") {
@@ -642,10 +596,15 @@ function verticalCellDrag(i) {
       }
     } else {
       if (vertical[dragIdx + 1].innerText.trim() === "") {
+        //다음 셀이 빈셀
         while (dragIdx < lastRow && vertical[dragIdx + 1].innerText.trim() === "") {
           dragIdx++;
         }
+        if (vertical[dragIdx].classList.contains("hide")) {
+          dragIdx++;
+        }
       } else {
+        //다음 셀이 글자셀
         while (dragIdx < lastRow && vertical[dragIdx].innerText.trim() !== "") {
           dragIdx++;
         }
@@ -668,6 +627,12 @@ function verticalMove(i) {
         rowIdx++;
       }
       rowIdx++;
+
+      if (rowIdx === lastRow && vertical[rowIdx].classList.contains("hide")) {
+        while (vertical[rowIdx].classList.contains("hide")) {
+          rowIdx--;
+        }
+      }
     }
   } else {
     //현재셀 글자칸
@@ -683,15 +648,21 @@ function verticalMove(i) {
           rowIdx++;
         }
         rowIdx++;
+
+        if (rowIdx === lastRow && vertical[rowIdx].classList.contains("hide")) {
+          while (vertical[rowIdx].classList.contains("hide")) {
+            rowIdx--;
+          }
+        }
       }
     } else {
       //다음셀 글자칸
       if (i < 0) {
-        while (rowIdx + i > 1 && vertical[rowIdx + i].innerText.trim() !== "") {
+        while (rowIdx + i > 0 && vertical[rowIdx + i].innerText.trim() !== "") {
           rowIdx--;
         }
       } else {
-        while (rowIdx + i < lastRow && vertical[rowIdx + i].innerText.trim() !== "") {
+        while (rowIdx + i <= lastRow && vertical[rowIdx + i].innerText.trim() !== "") {
           rowIdx++;
         }
       }
@@ -737,11 +708,11 @@ function horizontalMove(i) {
     } else {
       // 다음셀 글자칸
       if (i < 0) {
-        while (colIdx + i > 0 && horizontal[colIdx + i].innerText.trim() !== "") {
+        while (colIdx + i >= 0 && horizontal[colIdx + i].innerText.trim() !== "") {
           colIdx--;
         }
       } else {
-        while (colIdx + i < lastCol && horizontal[colIdx + i].innerText.trim() !== "") {
+        while (colIdx + i <= lastCol && horizontal[colIdx + i].innerText.trim() !== "") {
           colIdx++;
         }
       }
@@ -764,7 +735,7 @@ function cellDrag() {
   }
 }
 function clearDrag() {
-  let cellsInThisTable = currentTable.querySelectorAll(".textCell");
+  let cellsInThisTable = currentPage.querySelectorAll(".textCell");
   for (let i = 0; i < cellsInThisTable.length; i++) {
     cellsInThisTable[i].classList.remove("dragged");
   }
@@ -789,6 +760,7 @@ function mergeCell() {
     }
     currentCell = draggedCells[0];
     currentCell.focus();
+    rememberMovement(currentCell, "merge", Number(currentCell.style.flexGrow));
     dragIdx = rowIdx;
     clearDrag();
   } else {
@@ -800,6 +772,7 @@ function mergeCell() {
       currentColumn.querySelectorAll(".textCell")[rowIdx + i].style.flex = 1;
     }
     currentCell.focus();
+    rememberMovement(currentCell, "demerge", numOfHiddenCells);
   }
 }
 function fontSizeUp() {
@@ -884,9 +857,13 @@ function cancelCtrl() {
     }
   }
 }
-function ctrlC() {
+function ctrlC(x) {
   dataCtrl = [];
   cancelCtrl();
+
+  if (x === true) {
+    ctrlX = true;
+  }
 
   let draggedCells = currentTable.querySelectorAll(".dragged");
   if (draggedCells.length > 1) {
@@ -921,19 +898,6 @@ function ctrlC() {
     console.log(dataCtrl);
   }
 }
-function ctrlX() {
-  dataCtrl = [];
-  cancelCtrl();
-
-  let draggedCells = currentTable.querySelectorAll(".dragged");
-  if (draggedCells.length > 1) {
-    draggedCells.forEach((cell) => {
-      cell.classList.add("ctrlX");
-    });
-  } else {
-    currentCell.classList.add("ctrlX");
-  }
-}
 function ctrlV() {
   let startingCell = currentColumn.querySelectorAll(".textCell");
 
@@ -942,6 +906,32 @@ function ctrlV() {
   if (rowIdx + totalFlexGrow > lastRow || dataCtrl[0].flexGrow < startingCell[rowIdx].style.flexGrow || (startingCell[rowIdx + totalFlexGrow].classList.contains("hide") && startingCell[rowIdx + totalFlexGrow + 1].classList.contains("hide")) || startingCell[rowIdx + totalFlexGrow].style.flexGrow > 1) {
     alert("범위가 맞지 않습니다");
     return;
+  }
+
+  rememberMovement(currentCell, "ctrlV", dataCtrl);
+
+  if (ctrlX) {
+    //셀 원상복귀
+    let ctrlCells = currentPage.querySelectorAll(".ctrlCells");
+    for (let i = 0; i < ctrlCells.length; i++) {
+      ctrlCells.forEach((cell) => {
+        if (cell.style.flexGrow > 1) {
+          let cellRow = Number(cell.getAttribute("rowIndex"));
+          for (let j = 1; j < cell.style.flexGrow; j++) {
+            cell.parentNode.querySelectorAll(".textCell")[cellRow + j].classList.remove("hide");
+            cell.parentNode.querySelectorAll(".textCell")[cellRow + j].style.flexGrow = 1;
+            // console.log(cell.parentNode.querySelectorAll(".textCell")[cellRow + j]);
+          }
+        }
+        cell.style.flexGrow = 1;
+        cell.innerText = "";
+        cell.style.fontSize = "";
+        cell.classList.remove("fontBold");
+        cell.classList.remove("fontCancel");
+      });
+    }
+    ctrlX = false;
+    cancelCtrl();
   }
 
   for (let i = 0; i < dataCtrl.length; i++) {
@@ -962,7 +952,36 @@ function ctrlV() {
   }
 }
 function ctrlZ() {
-  console.log("ctrlZ");
+  //이전 셀에 복사
+  let previousCell = previousMovement[previousMovement.length - 1].cellInfo;
+  previousCell.innerText = previousMovement[previousMovement.length - 1].cellContent;
+  //현재 셀 되돌리기
+
+  // 1 셀 텍스트 입력 후 방향키 'textInput'
+  // 2 붙여넣기 'ctrlV'
+  // 3 병합 'merge'
+  // 4 해제 'demerge'
+}
+// function rememberOriginal(cell, content) {
+//   let tempObj = {};
+//   tempObj.cellInfo = cell;
+//   tempObj.cellMove = content;
+//   originalMovement.push(tempObj);
+//   if (originalMovement.length > 1 && originalMovement[originalMovement.length - 2].cellInfo === originalMovement[originalMovement.length - 1].cellInfo) {
+//     originalMovement.pop();
+//     // console.log(originalMovement);
+//   }
+// }
+function rememberMovement(cell, type, content) {
+  let movement = {};
+  movement.cellInfo = cell;
+  movement.cellType = type;
+  movement.cellContent = content;
+  previousMovement.push(movement);
+  if (previousMovement.length > 1 && previousMovement[previousMovement.length - 2].cellInfo === previousMovement[previousMovement.length - 1].cellInfo) {
+    previousMovement.pop();
+  }
+  console.log(previousMovement);
 }
 /////////////////////////////////////////////////////////FOOTER///////////////////////////////////////////////////////////
 // 버튼 좌클릭시 버튼+페이지 추가
