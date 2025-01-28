@@ -10,9 +10,9 @@
     <div class="container">
       <div class="header">
         <div class="headerItem">날짜</div>
-        <input type="date" class="selectDate" />
+        <input type="date" class="selectDate space" />
         <div class="headerItem">시간</div>
-        <select class="selectTime">
+        <select class="selectTime space">
           <option>09:00</option>
           <option>09:30</option>
           <option>10:00</option>
@@ -42,37 +42,37 @@
           <option>10:00</option>
         </select>
         <div class="headerItem">행</div>
-        <button class="btnAddRow">+</button>
-        <button class="btnDeleteRow">-</button>
+        <button class="btnAddRow btnUp">+</button>
+        <button class="btnDeleteRow btnDown space">-</button>
         <div class="headerItem">열</div>
-        <button class="btnAddColumn">+</button>
-        <button class="btnDeleteColumn">-</button>
+        <button class="btnAddColumn btnUp">+</button>
+        <button class="btnDeleteColumn btnDown space">-</button>
         <div class="headerItem">배율</div>
-        <select class="selectScreenRatio">
+        <select class="selectScreenRatio space">
           <option>100%</option>
           <option>90%</option>
           <option>75%</option>
           <option>50%</option>
         </select>
         <div class="headerItem">폰트</div>
-        <button class="btnFontSizeUp">+</button>
-        <div class="headerItem viewFont"></div>
-        <button class="btnFontSizeDown">-</button>
-        <button class="btnFontBold">B</button>
-        <button class="btnFontCancel">abc</button>
+        <button class="btnFontSizeUp btnUp">+</button>
+        <button class="btnFontSizeDown btnDown">-</button>
+        <div class="headerItem viewFont" style="margin-right: 1vh"></div>
+        <button class="btnFontBold" style="font-weight: bold">B</button>
+        <button class="btnFontCancel space" style="text-decoration: line-through">abc</button>
         <button class="headerItem btnHideTable">숨김</button>
         <button class="headerItem btnMerge">병합</button>
-        <div class="headerItem">정렬</div>
         <button class="headerItem btnViewTeachers">선생님별</button>
         <button class="headerItem btnPrint">인쇄</button>
+        <button class="headerItem btnSave">저장</button>
         <div class="markCurrentCell"></div>
       </div>
       <div class="printPage"></div>
       <div class="main">
         <div class="modalBackground hide">
           <div class="modalNameOrDelete">
-            <button class="btnReproducePage">변경</button>
-            <button class="btnRenamePage">복사</button>
+            <button class="btnReproducePage">복사</button>
+            <button class="btnRenamePage">변경</button>
             <button class="btnDeletePage">삭제</button>
             <input type="text" class="rename hide" />
           </div>
@@ -82,6 +82,7 @@
         <button class="btnAddPage">+</button>
       </div>
     </div>
-    <script src="src/app.js"></script>
+    <script src="src/firebase-sdk.js" type="module"></script>
+    <script src="src/app.js" type="module"></script>
   </body>
 </html>

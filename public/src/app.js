@@ -1,6 +1,7 @@
-document.addEventListener("contextmenu", (event) => {
-  event.preventDefault();
-});
+import { getFirestore, collection, doc, addDoc, setDoc, getDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+const db = getFirestore();
+
+//페이지 복사 함수 필요! (페이지버튼 우클릭시)
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 변수
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +27,6 @@ const btnDeleteColumn = document.querySelector(".btnDeleteColumn");
 const btnHideTable = document.querySelector(".btnHideTable");
 const selectScreenRatio = document.querySelector(".selectScreenRatio");
 const btnMerge = document.querySelector(".btnMerge");
-// const textCell = document.querySelectorAll(".textCell");
 const markCurrentCell = document.querySelector(".markCurrentCell");
 const viewFont = document.querySelector(".viewFont");
 const btnFontUp = document.querySelector(".btnFontSizeUp");
@@ -35,6 +35,7 @@ const btnFontBold = document.querySelector(".btnFontBold");
 const btnFontCancel = document.querySelector(".btnFontCancel");
 const btnViewTeachers = document.querySelector(".btnViewTeachers");
 const btnPrint = document.querySelector(".btnPrint");
+const btnSave = document.querySelector(".btnSave");
 //
 let currentPageOrder;
 let tempPageOrder;
@@ -53,7 +54,15 @@ let lastRow;
 let dataCtrl = [];
 let ctrlX = false;
 let previousMovement = [];
-// let originalMovement = [];
+//
+let createNumOfPage;
+let createNumOfTable;
+let createNumOfColumn;
+let createNumOfRow;
+let allColumn = [];
+
+// 버튼이름, 페이지복사
+
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 함수
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,11 +152,13 @@ function settingTime() {
     }
   }
 }
-//테이블 숨기기기
+//테이블 숨기기
 function hideTable() {
   if (!clickedTable) {
     return;
   }
+  console.log(clickedTable);
+
   if (clickedTable.querySelector(".textColumn")) {
     if (clickedTable.querySelector(".textColumn").classList.contains("hide")) {
       clickedTable.querySelectorAll(".textColumn").forEach((cols) => {
@@ -332,6 +343,7 @@ function viewTeachers() {
   }
   lastCol = currentPage.querySelector(".dayTable").querySelectorAll(".textColumn").length;
   lastRow = currentPage.querySelector(".timeColumn").querySelectorAll(".timeCell").length;
+  console.log(lastRow);
 
   const newDiv = document.createElement("div");
   newDiv.classList.add("teacherPage");
@@ -345,6 +357,7 @@ function viewTeachers() {
     newTeacherTable.classList.add("teacherTable");
 
     let cloneTimeColumn = currentPage.querySelector(".dayTable").querySelector(".timeColumn").cloneNode(true);
+    cloneTimeColumn.addEventListener("click", findClickedTable);
     cloneTimeColumn.querySelector(".timeCell").innerText = currentPage.querySelector(".dayTable").querySelectorAll(".textColumn")[i].querySelector(".nameCell").innerText;
     newTeacherTable.appendChild(cloneTimeColumn);
 
@@ -373,27 +386,40 @@ function customizedPrint() {
   if (!currentPage) {
     return;
   }
-  if (document.querySelector(".teacherPage")) {
-    //선생님별
-    for (let i = 0; i < lastCol; i++) {
-      let clonePage = document.querySelectorAll(".teacherTable")[i].cloneNode(true);
-      printPage.appendChild(clonePage);
-      window.print();
-      printPage.innerHTML = "";
-    }
-  } else {
-    //요일별별
+  if (clickedTable) {
     let mainWidth = Number(window.getComputedStyle(main).width.slice(0, -2));
-    for (let i = 0; i < 7; i++) {
-      let clonePage = document.querySelectorAll(".dayTable")[i].cloneNode(true);
-      let clonePageWidth = Number(window.getComputedStyle(document.querySelectorAll(".dayTable")[i]).width.slice(0, -2));
-      if (clonePageWidth > mainWidth + 0.1) {
-        let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.1;
-        clonePage.style.transform = `scale(${1 - ratio})`;
+    let clonePage = clickedTable.cloneNode(true);
+    let clonePageWidth = Number(window.getComputedStyle(clonePage).width.slice(0, -2));
+    if (clonePageWidth > mainWidth + 0.1) {
+      let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.1;
+      clonePage.style.transform = `scale(${1 - ratio})`;
+    }
+    printPage.appendChild(clonePage);
+    window.print();
+    printPage.innerHTML = "";
+  } else {
+    if (document.querySelector(".teacherPage")) {
+      //선생님별
+      for (let i = 0; i < lastCol; i++) {
+        let clonePage = document.querySelectorAll(".teacherTable")[i].cloneNode(true);
+        printPage.appendChild(clonePage);
+        window.print();
+        printPage.innerHTML = "";
       }
-      printPage.appendChild(clonePage);
-      window.print();
-      printPage.innerHTML = "";
+    } else {
+      //요일별별
+      let mainWidth = Number(window.getComputedStyle(main).width.slice(0, -2));
+      for (let i = 0; i < 7; i++) {
+        let clonePage = document.querySelectorAll(".dayTable")[i].cloneNode(true);
+        let clonePageWidth = Number(window.getComputedStyle(document.querySelectorAll(".dayTable")[i]).width.slice(0, -2));
+        if (clonePageWidth > mainWidth + 0.1) {
+          let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.1;
+          clonePage.style.transform = `scale(${1 - ratio})`;
+        }
+        printPage.appendChild(clonePage);
+        window.print();
+        printPage.innerHTML = "";
+      }
     }
   }
 }
@@ -408,9 +434,7 @@ function findCurrentCell(event) {
   dragIdx = rowIdx;
   clearDrag();
   findFontSize();
-  //표시
-  markCurrentCell.innerText = "";
-  markCurrentCell.innerText = rowIdx + ", " + colIdx;
+  markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText.split("-")[0];
 }
 function teacherNaming(event) {
   let index = event.target.getAttribute("colIndex");
@@ -421,7 +445,7 @@ function teacherNaming(event) {
     }
   }
 }
-//////////// 8.ctrl+Z 9.시수and수업 확인 10.데이터 저장 및 불러오기 11. 특정 테이블만 프린트
+////////////  11.시수and수업 확인
 function cellMove(event) {
   let previousCell;
   if (event.ctrlKey && event.shiftKey) {
@@ -504,9 +528,11 @@ function cellMove(event) {
     let draggedCells = currentColumn.querySelectorAll(".dragged");
     if (draggedCells.length > 1) {
       draggedCells.forEach((cell) => {
+        rememberMovement(cell, "delete", cell.innerText, 0, draggedCells.length);
         cell.innerText = "";
       });
     } else {
+      rememberMovement(currentCell, "delete", currentCell.innerText, 0, 0);
       currentCell.innerText = "";
     }
   } else if (event.key === "F2") {
@@ -545,10 +571,10 @@ function cellMove(event) {
       //기존 텍스트 저장
       rememberMovement(currentCell, "text", currentCell.innerText);
 
-      if (!currentCell.classList.contains("cursorOn")) {
+      if (!currentCell.classList.contains("cursorOn") && event.key !== "ArrowUp" && event.key !== "ArrowDown" && event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
         currentCell.innerText = "";
+        currentCell.classList.add("cursorOn");
       }
-      currentCell.classList.add("cursorOn");
     }
     dragIdx = rowIdx;
     clearDrag();
@@ -560,8 +586,7 @@ function cellMove(event) {
   currentCell.focus();
   findFontSize();
   //표시
-  markCurrentCell.innerText = "";
-  markCurrentCell.innerText = rowIdx + ", " + colIdx;
+  markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText.split("-")[0];
 }
 function verticalCellDrag(i) {
   let vertical = currentCell.parentNode.querySelectorAll(".textCell");
@@ -747,6 +772,11 @@ function mergeCell() {
   if (currentTable.querySelectorAll(".dragged").length > 1) {
     //병합
     let draggedCells = currentColumn.querySelectorAll(".dragged");
+    // CTRLZ
+    for (let i = 0; i < draggedCells.length; i++) {
+      rememberMovement(draggedCells[i], "merge", draggedCells[i].innerText, Number(draggedCells[i].style.flexGrow), draggedCells.length, 0);
+    }
+    //
     let numOfDraggedCells = draggedCells.length;
     let totalLength = 0;
     for (let i = 0; i < numOfDraggedCells; i++) {
@@ -760,19 +790,21 @@ function mergeCell() {
     }
     currentCell = draggedCells[0];
     currentCell.focus();
-    rememberMovement(currentCell, "merge", Number(currentCell.style.flexGrow));
+
     dragIdx = rowIdx;
     clearDrag();
   } else {
     //해제
-    let numOfHiddenCells = currentCell.style.flexGrow - 1;
+    let numOfHiddenCells = Number(currentCell.style.flexGrow) - 1;
+    // CTRLZ
+    rememberMovement(currentCell, "demerge", currentCell.innerText, numOfHiddenCells, 0);
+    //
     currentCell.style.flex = 1;
     for (let i = 1; i <= numOfHiddenCells; i++) {
       currentColumn.querySelectorAll(".textCell")[rowIdx + i].classList.remove("hide");
       currentColumn.querySelectorAll(".textCell")[rowIdx + i].style.flex = 1;
     }
     currentCell.focus();
-    rememberMovement(currentCell, "demerge", numOfHiddenCells);
   }
 }
 function fontSizeUp() {
@@ -908,8 +940,12 @@ function ctrlV() {
     return;
   }
 
-  rememberMovement(currentCell, "ctrlV", dataCtrl);
-
+  // CTRLZ
+  for (let i = 0; i < totalFlexGrow + 1; i++) {
+    rememberMovement(startingCell[rowIdx + i], "ctrlV", startingCell[rowIdx + i].innerText, Number(startingCell[rowIdx + i].style.flexGrow), totalFlexGrow);
+  }
+  console.log(previousMovement);
+  //
   if (ctrlX) {
     //셀 원상복귀
     let ctrlCells = currentPage.querySelectorAll(".ctrlCells");
@@ -920,7 +956,6 @@ function ctrlV() {
           for (let j = 1; j < cell.style.flexGrow; j++) {
             cell.parentNode.querySelectorAll(".textCell")[cellRow + j].classList.remove("hide");
             cell.parentNode.querySelectorAll(".textCell")[cellRow + j].style.flexGrow = 1;
-            // console.log(cell.parentNode.querySelectorAll(".textCell")[cellRow + j]);
           }
         }
         cell.style.flexGrow = 1;
@@ -953,35 +988,91 @@ function ctrlV() {
 }
 function ctrlZ() {
   //이전 셀에 복사
-  let previousCell = previousMovement[previousMovement.length - 1].cellInfo;
-  previousCell.innerText = previousMovement[previousMovement.length - 1].cellContent;
-  //현재 셀 되돌리기
+  cancelCtrl();
 
-  // 1 셀 텍스트 입력 후 방향키 'textInput'
+  let previousCell = previousMovement[previousMovement.length - 1].cellInfo;
+  if (previousMovement[previousMovement.length - 1].cellType === "text") {
+    previousCell.innerText = previousMovement[previousMovement.length - 1].cellContent;
+    if (previousMovement.length > 1) {
+      previousMovement.pop();
+    }
+
+    if (document.querySelector(".mark")) {
+      document.querySelector(".mark").classList.remove("mark");
+    }
+    previousCell.classList.add("mark");
+  } else if (previousMovement[previousMovement.length - 1].cellType === "merge") {
+    let i = 0;
+    let maxLoop = previousMovement[previousMovement.length - 1].cellLoop;
+
+    while (maxLoop > i) {
+      if (previousMovement[previousMovement.length - 1].cellFlexGrow > 0) {
+        previousMovement[previousMovement.length - 1].cellInfo.classList.remove("hide");
+      }
+      previousMovement[previousMovement.length - 1].cellInfo.style.flexGrow = previousMovement[previousMovement.length - 1].cellFlexGrow;
+      previousMovement[previousMovement.length - 1].cellInfo.innerText = previousMovement[previousMovement.length - 1].cellContent;
+      previousMovement.pop();
+      i++;
+    }
+
+    if (document.querySelector(".mark")) {
+      document.querySelector(".mark").classList.remove("mark");
+    }
+    previousCell.classList.add("mark");
+  } else if (previousMovement[previousMovement.length - 1].cellType === "demerge") {
+    let i = 1;
+    let maxLoop = previousMovement[previousMovement.length - 1].cellFlexGrow;
+    while (maxLoop >= i) {
+      previousMovement[previousMovement.length - 1].cellInfo.parentNode.querySelectorAll(".textCell")[Number(previousMovement[previousMovement.length - 1].cellInfo.getAttribute("rowIndex")) + i].classList.add("hide");
+      i++;
+    }
+    previousMovement[previousMovement.length - 1].cellInfo.style.flexGrow = previousMovement[previousMovement.length - 1].cellFlexGrow + 1;
+    previousMovement[previousMovement.length - 1].cellInfo.innerText = previousMovement[previousMovement.length - 1].cellContent;
+    previousMovement.pop();
+
+    if (document.querySelector(".mark")) {
+      document.querySelector(".mark").classList.remove("mark");
+    }
+    previousCell.classList.add("mark");
+  } else if (previousMovement[previousMovement.length - 1].cellType === "ctrlV") {
+    let i = 0;
+    let maxLoop = previousMovement[previousMovement.length - 1].cellLoop;
+
+    while (maxLoop >= i) {
+      if (previousMovement[previousMovement.length - 1].cellInfo.classList.contains("hide")) {
+        previousMovement[previousMovement.length - 1].cellInfo.classList.remove("hide");
+      }
+      previousMovement[previousMovement.length - 1].cellInfo.style.flexGrow = previousMovement[previousMovement.length - 1].cellFlexGrow;
+      previousMovement[previousMovement.length - 1].cellInfo.innerText = previousMovement[previousMovement.length - 1].cellContent;
+      previousMovement.pop();
+      i++;
+    }
+  } else if (previousMovement[previousMovement.length - 1].cellType === "delete") {
+    previousMovement[previousMovement.length - 1].cellInfo.innerText = previousMovement[previousMovement.length - 1].cellContent;
+    previousMovement.pop();
+
+    if (document.querySelector(".mark")) {
+      document.querySelector(".mark").classList.remove("mark");
+    }
+    previousCell.classList.add("mark");
+  }
+  // 1 셀 텍스트 입력 후 방향키 'textInput' - ㅇ
   // 2 붙여넣기 'ctrlV'
-  // 3 병합 'merge'
-  // 4 해제 'demerge'
+  // 3 병합 'merge' - ㅇ
+  // 4 해제 'demerge' - ㅇ
+  // 5 텍스트 삭제 'delete' - ㅇ
 }
-// function rememberOriginal(cell, content) {
-//   let tempObj = {};
-//   tempObj.cellInfo = cell;
-//   tempObj.cellMove = content;
-//   originalMovement.push(tempObj);
-//   if (originalMovement.length > 1 && originalMovement[originalMovement.length - 2].cellInfo === originalMovement[originalMovement.length - 1].cellInfo) {
-//     originalMovement.pop();
-//     // console.log(originalMovement);
-//   }
-// }
-function rememberMovement(cell, type, content) {
+function rememberMovement(cell, type, content, flex, loop) {
   let movement = {};
   movement.cellInfo = cell;
   movement.cellType = type;
   movement.cellContent = content;
+  movement.cellFlexGrow = flex;
+  movement.cellLoop = loop;
   previousMovement.push(movement);
   if (previousMovement.length > 1 && previousMovement[previousMovement.length - 2].cellInfo === previousMovement[previousMovement.length - 1].cellInfo) {
     previousMovement.pop();
   }
-  console.log(previousMovement);
 }
 /////////////////////////////////////////////////////////FOOTER///////////////////////////////////////////////////////////
 // 버튼 좌클릭시 버튼+페이지 추가
@@ -1083,7 +1174,6 @@ function closePreventModal(event) {
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 이벤트
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// headerInit();
 btnAddPage.addEventListener("click", addPage);
 modalDeleteBtn.addEventListener("click", modalDelete);
 modalNameBtn.addEventListener("click", modalNaming);
@@ -1104,4 +1194,167 @@ btnFontDown.addEventListener("click", fontSizeDown);
 btnFontBold.addEventListener("click", fontBold);
 btnFontCancel.addEventListener("click", fontCancel);
 btnViewTeachers.addEventListener("click", viewTeachers);
+btnViewTeachers.addEventListener("click", saveData);
 btnPrint.addEventListener("click", customizedPrint);
+btnSave.addEventListener("click", saveData);
+document.addEventListener("contextmenu", (event) => {
+  event.preventDefault();
+});
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+getData();
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+async function saveData() {
+  let pages = document.querySelectorAll(".page");
+  // let pageButtons = document.querySelectorAll(".btnPage");
+  let pageArray = [];
+  for (let i = 0; i < pages.length; i++) {
+    let singlePage = {};
+    let tableArray = [];
+    let tables = pages[i].querySelectorAll(".dayTable");
+    for (let j = 0; j < tables.length; j++) {
+      let singleTable = {};
+      let columnArray = [];
+      let columns = tables[j].querySelectorAll(".textColumn");
+      for (let k = 0; k < columns.length + 1; k++) {
+        let singleColumn = {};
+        let cellArray = [];
+        let cells;
+        if (k === 0) {
+          cells = tables[j].querySelector(".timeColumn").querySelectorAll(".timeCell");
+        } else {
+          cells = columns[k - 1].querySelectorAll(".textCell");
+        }
+        for (let m = 0; m < cells.length; m++) {
+          let singleCell = {};
+          singleCell.text = cells[m].innerText;
+          singleCell.flex = cells[m].style.flexGrow;
+          //
+          singleCell.fontSize = cells[m].style.fontSize;
+          cells[m].classList.contains("fontBold") ? (singleCell.fontBold = "true") : "";
+          cells[m].classList.contains("fontCancel") ? (singleCell.fontCancel = "true") : "";
+          //
+          cellArray.push(singleCell);
+        }
+        singleColumn.columnIndex = k;
+        singleColumn.columnData = cellArray;
+        columnArray.push(singleColumn);
+      }
+      singleTable.tableIndex = j;
+      singleTable.tableData = columnArray;
+      tableArray.push(singleTable);
+    }
+    singlePage.pageIndex = i;
+    // singlePage.pageBtnName = pageButtons.innerText;
+    singlePage.pageData = tableArray;
+    pageArray.push(singlePage);
+  }
+
+  await setDoc(doc(db, "pageData", "data"), {
+    data: pageArray,
+  });
+  // console.log(pageArray);
+}
+async function getData() {
+  allColumn = [];
+  const docSnap = await getDoc(doc(db, "pageData", "data"));
+
+  createNumOfPage = docSnap.data().data.length;
+  docSnap.data().data.forEach((page, pageIndex) => {
+    // console.log(pageIndex, page.pageData);
+
+    createNumOfTable = page.pageData.length;
+    page.pageData.forEach((table, tableIndex) => {
+      // console.log(tableIndex, table.tableData);
+
+      createNumOfColumn = table.tableData.length;
+      table.tableData.forEach((column, columnIndex) => {
+        // console.log(columnIndex, column);
+        let tempObj = {};
+        tempObj.pageIndex = pageIndex;
+        tempObj.data = column;
+        allColumn.push(tempObj);
+
+        createNumOfRow = column.columnData.length;
+        column.columnData.forEach((cell) => {
+          // console.log(cell);
+        });
+      });
+    });
+  });
+  createInit(allColumn);
+}
+function createInit(data) {
+  // console.log(data);
+  for (let i = 0; i < createNumOfPage; i++) {
+    const dataByPageIndex = data.filter((obj) => obj.pageIndex === i);
+    // console.log(dataByPageIndex);
+    let numOfColInOneTable = dataByPageIndex.length / 7;
+    const newPage = document.createElement("div");
+    newPage.classList.add("page");
+    newPage.setAttribute("order", i);
+
+    const newPageButton = document.createElement("button");
+    newPageButton.classList.add("btnPage");
+    newPageButton.setAttribute("order", i);
+    newPageButton.addEventListener("click", openPage);
+    newPageButton.addEventListener("contextmenu", openModal);
+    // newPageButton.innerText =
+
+    if (i === 0) {
+      currentPage = newPage;
+    } else {
+      newPage.classList.add("hide");
+    }
+
+    let p = 0;
+    for (let j = 0; j < 7; j++) {
+      const newTable = document.createElement("div");
+      newTable.classList.add("dayTable");
+      newTable.setAttribute("tableIndex", j);
+      for (let k = 0; k < numOfColInOneTable; k++) {
+        const newColumn = document.createElement("div");
+        k === 0 ? newColumn.classList.add("timeColumn") : newColumn.classList.add("textColumn");
+        if (newColumn.classList.contains("timeColumn")) {
+          newColumn.addEventListener("click", findClickedTable);
+        }
+        for (let m = 0; m < createNumOfRow; m++) {
+          const newCell = document.createElement("div");
+          if (k === 0) {
+            newCell.classList.add("timeCell");
+          } else {
+            newCell.classList.add("textCell");
+            newCell.setAttribute("colIndex", k - 1);
+            newCell.setAttribute("rowIndex", m);
+            newCell.setAttribute("contenteditable", true);
+            newCell.addEventListener("keydown", cellMove);
+            newCell.addEventListener("click", findCurrentCell);
+            if (m === 0) {
+              newCell.classList.add("nameCell");
+              newCell.addEventListener("input", teacherNaming);
+            }
+          }
+
+          if (newCell.classList.contains("textCell")) {
+            newCell.style.flex = dataByPageIndex[p].data.columnData[m].flex;
+            if (Number(dataByPageIndex[p].data.columnData[m].flex) === 0) {
+              newCell.classList.add("hide");
+            }
+          }
+          newCell.innerText = dataByPageIndex[p].data.columnData[m].text;
+          //
+          newCell.style.fontSize = dataByPageIndex[p].data.columnData[m].fontSize;
+          dataByPageIndex[p].data.columnData[m].fontBold ? newCell.classList.add("fontBold") : "";
+          dataByPageIndex[p].data.columnData[m].fontCancel ? newCell.classList.add("fontCancel") : "";
+          //
+          newColumn.appendChild(newCell);
+        }
+        p++;
+
+        newTable.appendChild(newColumn);
+      }
+      newPage.appendChild(newTable);
+    }
+    footer.appendChild(newPageButton);
+    main.appendChild(newPage);
+  }
+}

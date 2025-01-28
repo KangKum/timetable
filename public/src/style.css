@@ -20,8 +20,7 @@ body {
 }
 .headerItem {
   height: 100%;
-  width: auto;
-  border: 1px solid black;
+  /* outline: 1px solid black; */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,6 +30,7 @@ body {
 .viewFont {
   height: 100%;
   width: 5vh;
+  outline: black 1px solid;
 }
 .markCurrentCell {
   border: 2px solid blue;
@@ -39,7 +39,7 @@ body {
   justify-content: center;
   align-items: center;
   font-size: 100%;
-  margin-left: 200px;
+  margin-left: 2%;
 }
 
 .main {
@@ -79,6 +79,7 @@ body {
   display: flex;
   flex-direction: column;
   font-size: 80%;
+  cursor: pointer;
   background-color: rgb(229, 230, 231);
 }
 .teacherPage .timeCell {
@@ -151,6 +152,9 @@ body {
 }
 .page .textCell:focus {
   outline: blue 2px solid;
+}
+.mark {
+  background-color: rgb(203, 171, 171);
 }
 .nameCell {
   background-color: rgb(229, 230, 231);
@@ -236,16 +240,36 @@ button {
 button:hover {
   background-color: rgb(238, 230, 218);
 }
+.btnUp,
+.btnDown {
+  width: 3vh;
+  height: 100%;
+  margin-left: 0.1%;
+  font-size: 120%;
+  font-weight: bold;
+}
+.btnSave {
+  width: 10vh;
+  height: 100%;
+  margin-left: 5%;
+  font-weight: bold;
+  background-color: rgb(215, 211, 206);
+  box-shadow: 1% 1% 2% #bebebe; /* 어두운 그림자 */
+}
+.space {
+  margin-right: 2vh;
+}
 
 .btnClicked {
   background-color: rgb(240, 225, 204);
   border: 0;
 }
 .tableClicked {
-  background-color: bisque;
+  background-color: rgb(235, 221, 204);
+  border: 2px rgb(231, 183, 125) solid;
 }
 .hide {
-  display: none;
+  display: none !important;
 }
 
 @media print {
@@ -295,5 +319,8 @@ button:hover {
     display: flex;
     flex-direction: column;
     font-size: 90%;
+  }
+  .printPage .tableClicked {
+    background-color: white;
   }
 }
