@@ -1,10 +1,5 @@
 import { getFirestore, collection, doc, addDoc, setDoc, getDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
 const db = getFirestore();
-
-//페이지 복사 함수 필요! (페이지버튼 우클릭시)
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 변수
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////
 const main = document.querySelector(".main");
 const footer = document.querySelector(".footer");
 const printPage = document.querySelector(".printPage");
@@ -12,6 +7,7 @@ const printPage = document.querySelector(".printPage");
 const btnAddPage = document.querySelector(".btnAddPage");
 const modal = document.querySelector(".modalBackground");
 const modalNameOrDelete = document.querySelector(".modalNameOrDelete");
+const modalReproduceBtn = document.querySelector(".btnReproducePage");
 const modalDeleteBtn = document.querySelector(".btnDeletePage");
 const modalNameBtn = document.querySelector(".btnRenamePage");
 const modalNameInput = document.querySelector(".rename");
@@ -55,19 +51,14 @@ let dataCtrl = [];
 let ctrlX = false;
 let previousMovement = [];
 //
+let pageName = [];
 let createNumOfPage;
 let createNumOfTable;
 let createNumOfColumn;
 let createNumOfRow;
 let allColumn = [];
 
-// 버튼이름, 페이지복사
-
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 함수
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////HEADER////////////////////////////////////////
-// 클릭된된 테이블 확인
+//클릭된된 테이블 확인
 function findClickedTable(event) {
   if (document.querySelector(".tableClicked")) {
     clickedTable = document.querySelector(".tableClicked");
@@ -1145,6 +1136,7 @@ function openModal(event) {
   modal.classList.remove("hide");
 }
 function modalNaming() {
+  modalReproduceBtn.classList.add("hide");
   modalDeleteBtn.classList.add("hide");
   modalNameBtn.classList.add("hide");
   modalNameInput.classList.remove("hide");
@@ -1159,22 +1151,56 @@ function btnPageNaming(event) {
   if (event.key === "Enter") {
     document.querySelector(`.btnPage[order="${tempPageOrder}"]`).innerText = modalNameInput.value.trim();
     modalNameInput.value = "";
+    modalReproduceBtn.classList.remove("hide");
     modalDeleteBtn.classList.remove("hide");
     modalNameBtn.classList.remove("hide");
     modalNameInput.classList.add("hide");
     modal.classList.add("hide");
   }
 }
+function btnPageReproduce() {
+  //페이지
+  let nextOrder = Number(footer.querySelectorAll(".btnPage")[footer.querySelectorAll(".btnPage").length - 1].getAttribute("order")) + 1;
+  const newPage = main.querySelector(`.page[order="${tempPageOrder}"]`).cloneNode(true);
+  newPage.setAttribute("order", nextOrder);
+  newPage.classList.add("hide");
+  main.appendChild(newPage);
+
+  //테이블 및 행열
+  newPage.querySelectorAll(".textCell").forEach((textCell) => {
+    textCell.addEventListener("keydown", cellMove);
+    textCell.addEventListener("click", findCurrentCell);
+  });
+  newPage.querySelectorAll(".timeColumn").forEach((timeColumn) => {
+    timeColumn.addEventListener("click", findClickedTable);
+  });
+  newPage.querySelectorAll(".nameCell").forEach((nameCell) => {
+    nameCell.addEventListener("input", teacherNaming);
+  });
+
+  //버튼
+  const newPageBtn = footer.querySelector(`.btnPage[order="${tempPageOrder}"]`).cloneNode(true);
+  newPageBtn.setAttribute("order", nextOrder);
+  newPageBtn.classList.remove("btnClicked");
+  newPageBtn.addEventListener("click", openPage);
+  newPageBtn.addEventListener("contextmenu", openModal);
+  newPageBtn.innerText += "(2)";
+  footer.appendChild(newPageBtn);
+
+  closeModal();
+}
 function closeModal() {
+  modalReproduceBtn.classList.remove("hide");
+  modalDeleteBtn.classList.remove("hide");
+  modalNameBtn.classList.remove("hide");
+  modalNameInput.classList.add("hide");
   modal.classList.add("hide");
 }
 function closePreventModal(event) {
   event.stopPropagation();
 }
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 이벤트
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////
 btnAddPage.addEventListener("click", addPage);
+modalReproduceBtn.addEventListener("click", btnPageReproduce);
 modalDeleteBtn.addEventListener("click", modalDelete);
 modalNameBtn.addEventListener("click", modalNaming);
 modalNameInput.addEventListener("keydown", btnPageNaming);
@@ -1202,10 +1228,9 @@ document.addEventListener("contextmenu", (event) => {
 });
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 getData();
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
 async function saveData() {
   let pages = document.querySelectorAll(".page");
-  // let pageButtons = document.querySelectorAll(".btnPage");
+  let pageButtons = document.querySelectorAll(".btnPage");
   let pageArray = [];
   for (let i = 0; i < pages.length; i++) {
     let singlePage = {};
@@ -1244,7 +1269,7 @@ async function saveData() {
       tableArray.push(singleTable);
     }
     singlePage.pageIndex = i;
-    // singlePage.pageBtnName = pageButtons.innerText;
+    singlePage.pageBtnName = pageButtons[i].innerText;
     singlePage.pageData = tableArray;
     pageArray.push(singlePage);
   }
@@ -1260,7 +1285,8 @@ async function getData() {
 
   createNumOfPage = docSnap.data().data.length;
   docSnap.data().data.forEach((page, pageIndex) => {
-    // console.log(pageIndex, page.pageData);
+    // console.log(pageIndex, page.pageBtnName);
+    pageName.push(page.pageBtnName);
 
     createNumOfTable = page.pageData.length;
     page.pageData.forEach((table, tableIndex) => {
@@ -1298,10 +1324,11 @@ function createInit(data) {
     newPageButton.setAttribute("order", i);
     newPageButton.addEventListener("click", openPage);
     newPageButton.addEventListener("contextmenu", openModal);
-    // newPageButton.innerText =
+    newPageButton.innerText = pageName[i];
 
     if (i === 0) {
       currentPage = newPage;
+      newPageButton.classList.add("btnClicked");
     } else {
       newPage.classList.add("hide");
     }
