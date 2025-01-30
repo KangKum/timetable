@@ -143,12 +143,17 @@ body {
 .textCell {
   /* flex: 1; */
   min-width: 100%;
-  outline: 1px solid black;
+  outline: 1px solid rgb(175, 174, 174);
   display: flex;
   justify-content: center;
   align-items: center;
   white-space: nowrap;
   caret-color: transparent;
+  overflow-y: hidden;
+}
+.texting {
+  outline: 1px solid black;
+  text-align: center;
 }
 .page .textCell:focus {
   outline: blue 2px solid;
@@ -249,9 +254,10 @@ button:hover {
   font-weight: bold;
 }
 .btnSave {
-  width: 10vh;
-  height: 100%;
-  margin-left: 5%;
+  width: 7vh;
+  height: 90%;
+  margin-top: 0.1%;
+  margin-left: 1%;
   font-weight: bold;
   background-color: rgb(215, 211, 206);
   box-shadow: 1% 1% 2% #bebebe; /* 어두운 그림자 */
