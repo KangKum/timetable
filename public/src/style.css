@@ -152,7 +152,7 @@ body {
   overflow-y: hidden;
 }
 .texting {
-  outline: 1px solid black;
+  background-color: #f1eded;
   text-align: center;
 }
 .page .textCell:focus {
