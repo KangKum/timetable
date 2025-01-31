@@ -328,5 +328,6 @@ button:hover {
   }
   .printPage .tableClicked {
     background-color: white;
+    /* 진료비계산서영수증 */
   }
 }

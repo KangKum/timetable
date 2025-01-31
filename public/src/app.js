@@ -177,7 +177,6 @@ function addCol() {
       newTextCell.classList.add("textCell");
       if (j === 0) {
         newTextCell.classList.add("nameCell");
-        newTextCell.addEventListener("input", teacherNaming);
       }
       newTextCell.setAttribute("contenteditable", true);
       newTextCell.setAttribute("rowIndex", j);
@@ -200,7 +199,6 @@ function addCol() {
         newTextCell.classList.add("textCell");
         if (j === 0) {
           newTextCell.classList.add("nameCell");
-          newTextCell.addEventListener("input", teacherNaming);
         }
         newTextCell.setAttribute("contenteditable", true);
         newTextCell.setAttribute("rowIndex", j);
@@ -383,14 +381,15 @@ function customizedPrint() {
   if (!currentPage) {
     return;
   }
+  let mainWidth = Number(window.getComputedStyle(main).width.slice(0, -2));
   if (clickedTable) {
-    let mainWidth = Number(window.getComputedStyle(main).width.slice(0, -2));
     let clonePage = clickedTable.cloneNode(true);
-    let clonePageWidth = Number(window.getComputedStyle(clonePage).width.slice(0, -2));
-    if (clonePageWidth > mainWidth + 0.1) {
-      let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.1;
-      clonePage.style.transform = `scale(${1 - ratio})`;
-    }
+    let clonePageWidth = Number(window.getComputedStyle(clickedTable).width.slice(0, -2));
+
+    // if (clonePageWidth > mainWidth - 50) {
+    // let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.2;
+    clonePage.style.transform = `scale(${0.8})`;
+    // }
     printPage.appendChild(clonePage);
     window.print();
     printPage.innerHTML = "";
@@ -399,20 +398,24 @@ function customizedPrint() {
       //선생님별
       for (let i = 0; i < lastCol; i++) {
         let clonePage = document.querySelectorAll(".teacherTable")[i].cloneNode(true);
+        clonePage.style.transform = `scale(${1})`;
+
         printPage.appendChild(clonePage);
         window.print();
         printPage.innerHTML = "";
       }
     } else {
       //요일별별
-      let mainWidth = Number(window.getComputedStyle(main).width.slice(0, -2));
+      // let mainWidth = Number(window.getComputedStyle(main).width.slice(0, -2));
       for (let i = 0; i < 7; i++) {
         let clonePage = document.querySelectorAll(".dayTable")[i].cloneNode(true);
         let clonePageWidth = Number(window.getComputedStyle(document.querySelectorAll(".dayTable")[i]).width.slice(0, -2));
-        if (clonePageWidth > mainWidth + 0.1) {
-          let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.1;
-          clonePage.style.transform = `scale(${1 - ratio})`;
-        }
+        console.log("mainWidth: " + mainWidth);
+        console.log("pageWidth: " + clonePageWidth);
+        // if (clonePageWidth > mainWidth - 50) {
+        // let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.2;
+        clonePage.style.transform = `scale(${0.8})`;
+        // }
         printPage.appendChild(clonePage);
         window.print();
         printPage.innerHTML = "";
@@ -435,15 +438,6 @@ function findCurrentCell(event) {
     markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText;
   } else {
     markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText.split("-")[0];
-  }
-}
-function teacherNaming(event) {
-  let index = event.target.getAttribute("colIndex");
-  let namingTableIndex = event.target.parentNode.parentNode.getAttribute("tableIndex");
-  for (let i = 0; i < 7; i++) {
-    if (i !== Number(namingTableIndex)) {
-      currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".nameCell")[index].innerText = event.target.innerText;
-    }
   }
 }
 ////////////  11.시수and수업 확인
@@ -627,16 +621,20 @@ function cellMove(event) {
   // cellTexting(currentCell);
   findFontSize();
   //표시
-  markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText.split("-")[0];
-}
-function cellTexting(div) {
-  if (div.innerText.trim() === "") {
-    div.classList.remove("texting");
+  if (rowIdx === 0) {
+    markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText;
   } else {
-    div.classList.add("texting");
-    div.style.textAlign = "center";
+    markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText.split("-")[0];
   }
 }
+// function cellTexting(div) {
+//   if (div.innerText.trim() === "") {
+//     div.classList.remove("texting");
+//   } else {
+//     div.classList.add("texting");
+//     div.style.textAlign = "center";
+//   }
+// }
 function allCellTexting() {
   let allCells = currentPage.querySelectorAll(".textCell");
   for (let i = 0; i < allCells.length; i++) {
@@ -1239,9 +1237,6 @@ function btnPageReproduce() {
   newPage.querySelectorAll(".timeColumn").forEach((timeColumn) => {
     timeColumn.addEventListener("click", findClickedTable);
   });
-  newPage.querySelectorAll(".nameCell").forEach((nameCell) => {
-    nameCell.addEventListener("input", teacherNaming);
-  });
 
   //버튼
   const newPageBtn = footer.querySelector(`.btnPage[order="${tempPageOrder}"]`).cloneNode(true);
@@ -1297,6 +1292,40 @@ document.addEventListener("keydown", (event) => {
 });
 document.addEventListener("contextmenu", (event) => {
   event.preventDefault();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.altKey) {
+    let allPages = main.querySelectorAll(".page");
+    let allPageButtons = footer.querySelectorAll(".btnPage");
+    let currentPageOrder;
+    for (let i = 0; i < allPages.length; i++) {
+      if (!allPages[i].classList.contains("hide")) {
+        currentPageOrder = i;
+      }
+    }
+
+    if (event.key === "ArrowUp") {
+      if (currentPageOrder > 0) {
+        currentPage.classList.add("hide");
+        allPages[currentPageOrder - 1].classList.remove("hide");
+        currentPage = allPages[currentPageOrder - 1];
+
+        allPageButtons[currentPageOrder].classList.remove("btnClicked");
+        allPageButtons[currentPageOrder - 1].classList.add("btnClicked");
+        currentPageOrder--;
+      }
+    } else if (event.key === "ArrowDown") {
+      if (currentPageOrder < allPages.length - 1) {
+        currentPage.classList.add("hide");
+        allPages[currentPageOrder + 1].classList.remove("hide");
+        currentPage = allPages[currentPageOrder + 1];
+
+        allPageButtons[currentPageOrder].classList.remove("btnClicked");
+        allPageButtons[currentPageOrder + 1].classList.add("btnClicked");
+        currentPageOrder++;
+      }
+    }
+  }
 });
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 getData();
@@ -1434,7 +1463,6 @@ function createInit(data) {
             newCell.addEventListener("click", findCurrentCell);
             if (m === 0) {
               newCell.classList.add("nameCell");
-              newCell.addEventListener("input", teacherNaming);
             }
           }
 
