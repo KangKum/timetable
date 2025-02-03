@@ -105,8 +105,8 @@ function settingDate() {
     for (let i = 0; i < 7; i++) {
       const newDate = new Date(selectedDate);
       newDate.setDate(selectedDate.getDate() + i);
-      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerText = "";
-      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerText = newDate.toISOString().split("T")[0].slice(5) + ` (${week[i]})`;
+      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = "";
+      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = newDate.toISOString().split("T")[0].slice(5) + ` (${week[i]})`;
     }
   }
   if (clickedTable) {
@@ -127,9 +127,9 @@ function settingTime() {
     for (let i = 0; i < 7; i++) {
       for (let j = 1; j <= currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length - 1; j++) {
         if (time[timeIndex + j] === undefined) {
-          currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerText = "";
+          currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerHTML = "";
         } else {
-          currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerText = time[timeIndex + j - 1] + " - " + time[timeIndex + j];
+          currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerHTML = time[timeIndex + j - 1] + " - " + time[timeIndex + j];
         }
       }
     }
@@ -137,9 +137,9 @@ function settingTime() {
     //한개 테이블블
     for (let j = 1; j <= clickedTable.querySelectorAll(".timeCell").length - 1; j++) {
       if (time[timeIndex + j] === undefined) {
-        clickedTable.querySelectorAll(".timeCell")[j].innerText = "";
+        clickedTable.querySelectorAll(".timeCell")[j].innerHTML = "";
       } else {
-        clickedTable.querySelectorAll(".timeCell")[j].innerText = time[timeIndex + j - 1] + " - " + time[timeIndex + j];
+        clickedTable.querySelectorAll(".timeCell")[j].innerHTML = time[timeIndex + j - 1] + " - " + time[timeIndex + j];
       }
     }
   }
@@ -167,16 +167,18 @@ function addCol() {
     return;
   }
 
-  if (clickedTable) {
-    //테이블 하나
+  //테이블 전체
+  for (let i = 0; i < 7; i++) {
+    let numOfRow = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length;
     let newTextColumn = document.createElement("div");
     newTextColumn.classList.add("textColumn");
-    let numOfTextColumn = clickedTable.querySelectorAll(".textColumn").length;
-    for (let j = 0; j < clickedTable.querySelectorAll(".timeCell").length; j++) {
+    let numOfTextColumn = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn").length;
+    for (let j = 0; j < numOfRow; j++) {
       let newTextCell = document.createElement("div");
       newTextCell.classList.add("textCell");
       if (j === 0) {
         newTextCell.classList.add("nameCell");
+        newTextCell.addEventListener("keydown", teacherNaming);
       }
       newTextCell.setAttribute("contenteditable", true);
       newTextCell.setAttribute("rowIndex", j);
@@ -186,30 +188,7 @@ function addCol() {
       newTextCell.addEventListener("click", findCurrentCell);
       newTextColumn.appendChild(newTextCell);
     }
-    clickedTable.appendChild(newTextColumn);
-  } else {
-    //테이블 전체
-    for (let i = 0; i < 7; i++) {
-      let numOfRow = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length;
-      let newTextColumn = document.createElement("div");
-      newTextColumn.classList.add("textColumn");
-      let numOfTextColumn = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn").length;
-      for (let j = 0; j < numOfRow; j++) {
-        let newTextCell = document.createElement("div");
-        newTextCell.classList.add("textCell");
-        if (j === 0) {
-          newTextCell.classList.add("nameCell");
-        }
-        newTextCell.setAttribute("contenteditable", true);
-        newTextCell.setAttribute("rowIndex", j);
-        newTextCell.setAttribute("colIndex", numOfTextColumn);
-        newTextCell.style.flex = 1;
-        newTextCell.addEventListener("keydown", cellMove);
-        newTextCell.addEventListener("click", findCurrentCell);
-        newTextColumn.appendChild(newTextCell);
-      }
-      currentPage.querySelectorAll(".dayTable")[i].appendChild(newTextColumn);
-    }
+    currentPage.querySelectorAll(".dayTable")[i].appendChild(newTextColumn);
   }
 }
 function deleteCol() {
@@ -219,19 +198,11 @@ function deleteCol() {
   const result = confirm("선생님 열을 제거하시겠습니까?");
   // alert("선생님 열을 제거하시겠습니까?");
   if (result) {
-    if (clickedTable) {
-      //한개 테이블
-      if (clickedTable.querySelector(".textColumn")) {
-        let numOfCol = clickedTable.querySelectorAll(".textColumn").length;
-        clickedTable.querySelectorAll(".textColumn")[numOfCol - 1].remove();
-      }
-    } else {
-      //전체 테이블
-      for (let i = 0; i < 7; i++) {
-        if (currentPage.querySelectorAll(".dayTable")[i].querySelector(".textColumn")) {
-          let numOfCol = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn").length;
-          currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[numOfCol - 1].remove();
-        }
+    //전체 테이블
+    for (let i = 0; i < 7; i++) {
+      if (currentPage.querySelectorAll(".dayTable")[i].querySelector(".textColumn")) {
+        let numOfCol = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn").length;
+        currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[numOfCol - 1].remove();
       }
     }
   }
@@ -241,16 +212,15 @@ function addRow() {
     return;
   }
 
-  if (clickedTable) {
-    //한개 테이블
+  for (let i = 0; i < 7; i++) {
     //timeCell
     let newTimeCell = document.createElement("div");
     newTimeCell.classList.add("timeCell");
-    clickedTable.querySelector(".timeColumn").appendChild(newTimeCell);
+    currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeColumn").appendChild(newTimeCell);
 
     //textCell
-    let numOfCol = clickedTable.querySelectorAll(".textColumn").length;
-    let numOfRow = clickedTable.querySelectorAll(".timeCell").length - 1;
+    let numOfCol = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn").length;
+    let numOfRow = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length - 1;
     for (let j = 0; j < numOfCol; j++) {
       let newTextCell = document.createElement("div");
       newTextCell.classList.add("textCell");
@@ -260,30 +230,7 @@ function addRow() {
       newTextCell.style.flex = 1;
       newTextCell.addEventListener("keydown", cellMove);
       newTextCell.addEventListener("click", findCurrentCell);
-      clickedTable.querySelectorAll(".textColumn")[j].appendChild(newTextCell);
-    }
-  } else {
-    //전체 테이블
-    for (let i = 0; i < 7; i++) {
-      //timeCell
-      let newTimeCell = document.createElement("div");
-      newTimeCell.classList.add("timeCell");
-      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeColumn").appendChild(newTimeCell);
-
-      //textCell
-      let numOfCol = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn").length;
-      let numOfRow = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length - 1;
-      for (let j = 0; j < numOfCol; j++) {
-        let newTextCell = document.createElement("div");
-        newTextCell.classList.add("textCell");
-        newTextCell.setAttribute("contenteditable", true);
-        newTextCell.setAttribute("rowIndex", numOfRow);
-        newTextCell.setAttribute("colIndex", j);
-        newTextCell.style.flex = 1;
-        newTextCell.addEventListener("keydown", cellMove);
-        newTextCell.addEventListener("click", findCurrentCell);
-        currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[j].appendChild(newTextCell);
-      }
+      currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[j].appendChild(newTextCell);
     }
   }
 }
@@ -294,32 +241,17 @@ function deleteRow() {
   const result = confirm("마지막 행을 제거하시겠습니까?");
 
   if (result) {
-    if (clickedTable) {
-      //한개 테이블
+    //전체 테이블
+    for (let i = 0; i < 7; i++) {
       //timeCell
-      let numOfRow = clickedTable.querySelectorAll(".timeCell").length;
-      if (numOfRow < 2) {
-        return;
-      }
-      clickedTable.querySelector(".timeColumn").querySelectorAll(".timeCell")[numOfRow - 1].remove();
-      //textCell
-      let numOfCol = clickedTable.querySelectorAll(".textColumn").length;
-      for (let j = 0; j < numOfCol; j++) {
-        clickedTable.querySelectorAll(".textColumn")[j].querySelectorAll(".textCell")[numOfRow - 1].remove();
-      }
-    } else {
-      //전체 테이블
-      for (let i = 0; i < 7; i++) {
-        //timeCell
-        let numOfRow = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length;
-        if (numOfRow > 1) {
-          currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeColumn").querySelectorAll(".timeCell")[numOfRow - 1].remove();
+      let numOfRow = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length;
+      if (numOfRow > 1) {
+        currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeColumn").querySelectorAll(".timeCell")[numOfRow - 1].remove();
 
-          //textCell
-          let numOfCol = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn").length;
-          for (let j = 0; j < numOfCol; j++) {
-            currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[j].querySelectorAll(".textCell")[numOfRow - 1].remove();
-          }
+        //textCell
+        let numOfCol = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn").length;
+        for (let j = 0; j < numOfCol; j++) {
+          currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[j].querySelectorAll(".textCell")[numOfRow - 1].remove();
         }
       }
     }
@@ -344,7 +276,7 @@ function viewTeachers() {
   newDiv.classList.add("teacherPage");
   let tempWeek = [];
   for (let i = 0; i < 5; i++) {
-    tempWeek.push(currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerText);
+    tempWeek.push(currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML);
   }
 
   for (let i = 0; i < lastCol; i++) {
@@ -353,12 +285,12 @@ function viewTeachers() {
 
     let cloneTimeColumn = currentPage.querySelector(".dayTable").querySelector(".timeColumn").cloneNode(true);
     cloneTimeColumn.addEventListener("click", findClickedTable);
-    cloneTimeColumn.querySelector(".timeCell").innerText = currentPage.querySelector(".dayTable").querySelectorAll(".textColumn")[i].querySelector(".nameCell").innerText;
+    cloneTimeColumn.querySelector(".timeCell").innerHTML = currentPage.querySelector(".dayTable").querySelectorAll(".textColumn")[i].querySelector(".nameCell").innerHTML;
     newTeacherTable.appendChild(cloneTimeColumn);
 
     for (let j = 0; j < 5; j++) {
       let cloneTextColumn = currentPage.querySelectorAll(".dayTable")[j].querySelectorAll(".textColumn")[i].cloneNode(true);
-      cloneTextColumn.querySelector(".textCell").innerText = currentPage.querySelectorAll(".dayTable")[j].querySelector(".timeCell").innerText;
+      cloneTextColumn.querySelector(".textCell").innerHTML = currentPage.querySelectorAll(".dayTable")[j].querySelector(".timeCell").innerHTML;
       newTeacherTable.appendChild(cloneTextColumn);
     }
     newTeacherTable.querySelectorAll(".textCell").forEach((txtcell) => {
@@ -367,14 +299,14 @@ function viewTeachers() {
     newDiv.appendChild(newTeacherTable);
   }
 
-  if (btnViewTeachers.innerText === "선생님별") {
+  if (btnViewTeachers.innerHTML === "선생님별") {
     currentPage.classList.add("hide");
-    btnViewTeachers.innerText = "요일별";
+    btnViewTeachers.innerHTML = "요일별";
     main.appendChild(newDiv);
   } else {
     document.querySelector(".teacherPage").remove();
     currentPage.classList.remove("hide");
-    btnViewTeachers.innerText = "선생님별";
+    btnViewTeachers.innerHTML = "선생님별";
   }
 }
 function customizedPrint() {
@@ -435,12 +367,11 @@ function findCurrentCell(event) {
   clearDrag();
   findFontSize();
   if (rowIdx === 0) {
-    markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText;
+    markCurrentCell.innerHTML = currentTable.querySelectorAll(".timeCell")[rowIdx].innerHTML;
   } else {
-    markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText.split("-")[0];
+    markCurrentCell.innerHTML = currentTable.querySelectorAll(".timeCell")[rowIdx].innerHTML.split("-")[0];
   }
 }
-////////////  11.시수and수업 확인
 function cellMove(event) {
   let previousCell;
 
@@ -475,6 +406,9 @@ function cellMove(event) {
     } else if (event.key === "z" || event.key === "Z") {
       event.preventDefault();
       ctrlZ();
+    } else if (event.key === "s" || event.key === "S") {
+      event.preventDefault();
+      saveData();
     } else if (event.key === "Enter") {
       mergeCell();
     } else if (event.key === "b" || event.key === "B") {
@@ -501,6 +435,28 @@ function cellMove(event) {
     } else if (event.key === "Enter") {
       //줄바꿈 금지
       // event.preventDefault();
+    } else if (event.key === "Tab") {
+      event.preventDefault();
+      previousCell = currentCell;
+      if (colIdx > 0) {
+        colIdx--;
+        while (currentTable.querySelectorAll(".textColumn")[colIdx].querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
+          rowIdx--;
+        }
+      } else if (colIdx === 0) {
+        if (currentTable.getAttribute("tableIndex") === "0") {
+          currentTable = currentPage.querySelectorAll(".dayTable")[6];
+        } else {
+          currentTable = currentPage.querySelectorAll(".dayTable")[Number(currentTable.getAttribute("tableIndex")) - 1];
+        }
+        rowIdx = 1;
+        colIdx = 0;
+      }
+      if (document.querySelector(".mark")) {
+        document.querySelector(".mark").classList.remove("mark");
+      }
+      previousCell.classList.remove("f2Cell");
+    } else {
     }
   } else if (event.key === "Enter") {
     event.preventDefault();
@@ -522,7 +478,6 @@ function cellMove(event) {
       document.querySelector(".mark").classList.remove("mark");
     }
     previousCell.classList.remove("f2Cell");
-    saveData();
   } else if (event.key === "Tab") {
     event.preventDefault();
     previousCell = currentCell;
@@ -544,25 +499,27 @@ function cellMove(event) {
       document.querySelector(".mark").classList.remove("mark");
     }
     previousCell.classList.remove("f2Cell");
-    saveData();
   } else if (event.altKey) {
     event.preventDefault();
   } else if (event.key === "delete" || event.key === "Delete") {
     let draggedCells = currentColumn.querySelectorAll(".dragged");
     if (draggedCells.length > 1) {
       draggedCells.forEach((cell) => {
-        rememberMovement(cell, "delete", cell.innerText, 0, draggedCells.length);
-        cell.innerText = "";
+        rememberMovement(cell, "delete", cell.innerHTML, 0, draggedCells.length);
+        cell.classList.remove("texting");
+        cell.innerHTML = "";
       });
     } else {
-      rememberMovement(currentCell, "delete", currentCell.innerText, 0, 0);
-      currentCell.innerText = "";
+      rememberMovement(currentCell, "delete", currentCell.innerHTML, 0, 0);
+      currentCell.innerHTML = "";
+      currentCell.classList.remove("texting");
     }
-    console.log(previousMovement);
+    // console.log(previousMovement);
   } else if (event.key === "F2") {
     event.preventDefault();
     previousCell = currentCell;
     currentCell.classList.add("f2Cell");
+    currentCell.classList.remove("texting");
 
     const range = document.createRange();
     const selection = window.getSelection();
@@ -603,11 +560,12 @@ function cellMove(event) {
       previousCell = currentCell;
     } else {
       //기존 텍스트 저장
-      rememberMovement(currentCell, "text", currentCell.innerText);
+      rememberMovement(currentCell, "text", currentCell.innerHTML);
 
       if (!currentCell.classList.contains("cursorOn") && event.key !== "ArrowUp" && event.key !== "ArrowDown" && event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
-        currentCell.innerText = "";
+        currentCell.innerHTML = "";
         currentCell.classList.add("cursorOn");
+        currentCell.classList.remove("texting");
       }
     }
     dragIdx = rowIdx;
@@ -618,29 +576,19 @@ function cellMove(event) {
   currentColumn = currentCell.parentNode;
   currentTable = currentColumn.parentNode;
   currentCell.focus();
-  // cellTexting(currentCell);
   findFontSize();
   //표시
   if (rowIdx === 0) {
-    markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText;
+    markCurrentCell.innerHTML = currentTable.querySelectorAll(".timeCell")[rowIdx].innerHTML;
   } else {
-    markCurrentCell.innerText = currentTable.querySelectorAll(".timeCell")[rowIdx].innerText.split("-")[0];
+    markCurrentCell.innerHTML = currentTable.querySelectorAll(".timeCell")[rowIdx].innerHTML.split("-")[0];
   }
 }
-// function cellTexting(div) {
-//   if (div.innerText.trim() === "") {
-//     div.classList.remove("texting");
-//   } else {
-//     div.classList.add("texting");
-//     div.style.textAlign = "center";
-//   }
-// }
 function allCellTexting() {
   let allCells = currentPage.querySelectorAll(".textCell");
   for (let i = 0; i < allCells.length; i++) {
-    if (allCells[i].innerText.trim() !== "") {
+    if (allCells[i].innerHTML.trim() !== "") {
       allCells[i].classList.add("texting");
-      // allCells[i].style.textAlign = "center";
     } else {
       allCells[i].classList.remove("texting");
     }
@@ -649,22 +597,22 @@ function allCellTexting() {
 function verticalCellDrag(i) {
   let vertical = currentCell.parentNode.querySelectorAll(".textCell");
   //현재 셀이 빈셀이면
-  if (vertical[dragIdx].innerText.trim() === "") {
+  if (vertical[dragIdx].innerHTML.trim() === "") {
     if (i < 0) {
-      while (dragIdx > 1 && vertical[dragIdx].innerText.trim() === "") {
+      while (dragIdx > 1 && vertical[dragIdx].innerHTML.trim() === "") {
         dragIdx--;
       }
     } else {
-      while (dragIdx < lastRow && vertical[dragIdx].innerText.trim() === "") {
+      while (dragIdx < lastRow && vertical[dragIdx].innerHTML.trim() === "") {
         dragIdx++;
       }
     }
   } else {
     //현재 셀이 글자셀이면 // 다음 셀이 빈셀 or 글자셀이면
     if (i < 0) {
-      if (vertical[dragIdx - 1].innerText.trim() === "") {
+      if (vertical[dragIdx - 1].innerHTML.trim() === "") {
         //다음 셀이 빈셀
-        while (dragIdx > 1 && vertical[dragIdx - 1].innerText.trim() === "") {
+        while (dragIdx > 1 && vertical[dragIdx - 1].innerHTML.trim() === "") {
           dragIdx--;
         }
         if (vertical[dragIdx].classList.contains("hide")) {
@@ -672,15 +620,15 @@ function verticalCellDrag(i) {
         }
       } else {
         //다음 셀이 글자셀
-        while (dragIdx > 1 && vertical[dragIdx].innerText.trim() !== "") {
+        while (dragIdx > 1 && vertical[dragIdx].innerHTML.trim() !== "") {
           dragIdx--;
         }
         dragIdx++;
       }
     } else {
-      if (vertical[dragIdx + 1].innerText.trim() === "") {
+      if (vertical[dragIdx + 1].innerHTML.trim() === "") {
         //다음 셀이 빈셀
-        while (dragIdx < lastRow && vertical[dragIdx + 1].innerText.trim() === "") {
+        while (dragIdx < lastRow && vertical[dragIdx + 1].innerHTML.trim() === "") {
           dragIdx++;
         }
         if (vertical[dragIdx].classList.contains("hide")) {
@@ -688,7 +636,7 @@ function verticalCellDrag(i) {
         }
       } else {
         //다음 셀이 글자셀
-        while (dragIdx < lastRow && vertical[dragIdx].innerText.trim() !== "") {
+        while (dragIdx < lastRow && vertical[dragIdx].innerHTML.trim() !== "") {
           dragIdx++;
         }
         dragIdx--;
@@ -698,15 +646,15 @@ function verticalCellDrag(i) {
 }
 function verticalMove(i) {
   let vertical = currentCell.parentNode.querySelectorAll(".textCell");
-  if (currentCell.innerText.trim() === "") {
+  if (currentCell.innerHTML.trim() === "") {
     //현재셀 빈칸
     if (i < 0) {
-      while (rowIdx + i > 1 && vertical[rowIdx + i].innerText.trim() === "") {
+      while (rowIdx + i > 1 && vertical[rowIdx + i].innerHTML.trim() === "") {
         rowIdx--;
       }
       rowIdx--;
     } else {
-      while (rowIdx + i < lastRow && vertical[rowIdx + i].innerText.trim() === "") {
+      while (rowIdx + i < lastRow && vertical[rowIdx + i].innerHTML.trim() === "") {
         rowIdx++;
       }
       rowIdx++;
@@ -719,15 +667,15 @@ function verticalMove(i) {
     }
   } else {
     //현재셀 글자칸
-    if (vertical[rowIdx + i].innerText.trim() === "") {
+    if (vertical[rowIdx + i].innerHTML.trim() === "") {
       //다음셀 빈칸
       if (i < 0) {
-        while (rowIdx + i > 1 && vertical[rowIdx + i].innerText.trim() === "") {
+        while (rowIdx + i > 1 && vertical[rowIdx + i].innerHTML.trim() === "") {
           rowIdx--;
         }
         rowIdx--;
       } else {
-        while (rowIdx + i < lastRow && vertical[rowIdx + i].innerText.trim() === "") {
+        while (rowIdx + i < lastRow && vertical[rowIdx + i].innerHTML.trim() === "") {
           rowIdx++;
         }
         rowIdx++;
@@ -741,11 +689,11 @@ function verticalMove(i) {
     } else {
       //다음셀 글자칸
       if (i < 0) {
-        while (rowIdx + i > 0 && vertical[rowIdx + i].innerText.trim() !== "") {
+        while (rowIdx + i > 0 && vertical[rowIdx + i].innerHTML.trim() !== "") {
           rowIdx--;
         }
       } else {
-        while (rowIdx + i <= lastRow && vertical[rowIdx + i].innerText.trim() !== "") {
+        while (rowIdx + i <= lastRow && vertical[rowIdx + i].innerHTML.trim() !== "") {
           rowIdx++;
         }
       }
@@ -760,30 +708,30 @@ function horizontalMove(i) {
   for (let j = 0; j < columnsInThisTable.length; j++) {
     horizontal.push(columnsInThisTable[j].querySelectorAll(".textCell")[rowIdx]);
   }
-  if (currentCell.innerText.trim() === "") {
+  if (currentCell.innerHTML.trim() === "") {
     //현재셀 빈칸
     if (i < 0) {
-      while (colIdx + i > 0 && horizontal[colIdx + i].innerText.trim() === "") {
+      while (colIdx + i > 0 && horizontal[colIdx + i].innerHTML.trim() === "") {
         colIdx--;
       }
       colIdx--;
     } else {
-      while (colIdx + i < lastCol && horizontal[colIdx + i].innerText.trim() === "") {
+      while (colIdx + i < lastCol && horizontal[colIdx + i].innerHTML.trim() === "") {
         colIdx++;
       }
       colIdx++;
     }
   } else {
     //현재셀 글자칸
-    if (horizontal[colIdx + i].innerText.trim() === "") {
+    if (horizontal[colIdx + i].innerHTML.trim() === "") {
       // 다음셀 빈칸
       if (i < 0) {
-        while (colIdx + i > 0 && horizontal[colIdx + i].innerText.trim() === "") {
+        while (colIdx + i > 0 && horizontal[colIdx + i].innerHTML.trim() === "") {
           colIdx--;
         }
         colIdx--;
       } else {
-        while (colIdx + i < lastCol && horizontal[colIdx + i].innerText.trim() === "") {
+        while (colIdx + i < lastCol && horizontal[colIdx + i].innerHTML.trim() === "") {
           colIdx++;
         }
         colIdx++;
@@ -791,11 +739,11 @@ function horizontalMove(i) {
     } else {
       // 다음셀 글자칸
       if (i < 0) {
-        while (colIdx + i >= 0 && horizontal[colIdx + i].innerText.trim() !== "") {
+        while (colIdx + i >= 0 && horizontal[colIdx + i].innerHTML.trim() !== "") {
           colIdx--;
         }
       } else {
-        while (colIdx + i <= lastCol && horizontal[colIdx + i].innerText.trim() !== "") {
+        while (colIdx + i <= lastCol && horizontal[colIdx + i].innerHTML.trim() !== "") {
           colIdx++;
         }
       }
@@ -832,7 +780,7 @@ function mergeCell() {
     let draggedCells = currentColumn.querySelectorAll(".dragged");
     // CTRLZ
     for (let i = 0; i < draggedCells.length; i++) {
-      rememberMovement(draggedCells[i], "merge", draggedCells[i].innerText, Number(draggedCells[i].style.flexGrow), draggedCells.length, 0);
+      rememberMovement(draggedCells[i], "merge", draggedCells[i].innerHTML, Number(draggedCells[i].style.flexGrow), draggedCells.length, 0);
     }
     //
     let numOfDraggedCells = draggedCells.length;
@@ -844,7 +792,7 @@ function mergeCell() {
     for (let i = 1; i < numOfDraggedCells; i++) {
       draggedCells[i].classList.add("hide");
       draggedCells[i].style.flex = 0;
-      draggedCells[i].innerText = "";
+      draggedCells[i].innerHTML = "";
     }
     currentCell = draggedCells[0];
     currentCell.focus();
@@ -855,7 +803,7 @@ function mergeCell() {
     //해제
     let numOfHiddenCells = Number(currentCell.style.flexGrow) - 1;
     // CTRLZ
-    rememberMovement(currentCell, "demerge", currentCell.innerText, numOfHiddenCells, 0);
+    rememberMovement(currentCell, "demerge", currentCell.innerHTML, numOfHiddenCells, 0);
     //
     currentCell.style.flex = 1;
     for (let i = 1; i <= numOfHiddenCells; i++) {
@@ -863,6 +811,14 @@ function mergeCell() {
       currentColumn.querySelectorAll(".textCell")[rowIdx + i].style.flex = 1;
     }
     currentCell.focus();
+  }
+}
+function teacherNaming(event) {
+  if (event.key === "Enter" || event.key === "Tab") {
+    let index = Number(this.getAttribute("colIndex"));
+    for (let i = 0; i < 5; i++) {
+      currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[index].querySelector(".nameCell").innerHTML = this.innerHTML;
+    }
   }
 }
 function fontSizeUp() {
@@ -934,9 +890,9 @@ function fontCancel() {
 function findFontSize() {
   //here
   if (currentCell.style.fontSize === "") {
-    viewFont.innerText = "100%";
+    viewFont.innerHTML = "100%";
   } else {
-    viewFont.innerText = currentCell.style.fontSize;
+    viewFont.innerHTML = currentCell.style.fontSize;
   }
 }
 function cancelCtrl() {
@@ -961,7 +917,7 @@ function ctrlC(x) {
       cell.classList.add("ctrlCells");
       let tempData = {};
       tempData.flexGrow = Number(cell.style.flexGrow); // 1
-      tempData.text = cell.innerText; // 2
+      tempData.text = cell.innerHTML; // 2
       tempData.fontSize = cell.style.fontSize; // 3
       if (cell.classList.contains("fontBold")) {
         tempData.fontBold = "bold"; // 4
@@ -976,7 +932,7 @@ function ctrlC(x) {
     currentCell.classList.add("ctrlCells");
     let tempData = {};
     tempData.flexGrow = Number(currentCell.style.flexGrow); // 1
-    tempData.text = currentCell.innerText; // 2
+    tempData.text = currentCell.innerHTML; // 2
     tempData.fontSize = currentCell.style.fontSize; // 3
     if (currentCell.classList.contains("fontBold")) {
       tempData.fontBold = "bold"; // 4
@@ -1000,7 +956,7 @@ function ctrlV() {
 
   // CTRLZ
   for (let i = 0; i < totalFlexGrow + 1; i++) {
-    rememberMovement(startingCell[rowIdx + i], "ctrlV", startingCell[rowIdx + i].innerText, Number(startingCell[rowIdx + i].style.flexGrow), totalFlexGrow);
+    rememberMovement(startingCell[rowIdx + i], "ctrlV", startingCell[rowIdx + i].innerHTML, Number(startingCell[rowIdx + i].style.flexGrow), totalFlexGrow);
   }
   // console.log(previousMovement);
   //
@@ -1017,7 +973,7 @@ function ctrlV() {
           }
         }
         cell.style.flexGrow = 1;
-        cell.innerText = "";
+        cell.innerHTML = "";
         cell.style.fontSize = "";
         cell.classList.remove("fontBold");
         cell.classList.remove("fontCancel");
@@ -1037,7 +993,7 @@ function ctrlV() {
       }
     }
     startingCell[rowIdx + i].style.flexGrow = dataCtrl[i].flexGrow; // 1
-    startingCell[rowIdx + i].innerText = dataCtrl[i].text; // 2
+    startingCell[rowIdx + i].innerHTML = dataCtrl[i].text; // 2
     startingCell[rowIdx + i].style.fontSize = dataCtrl[i].fontSize; // 3
     if (dataCtrl[i].fontBold) {
       startingCell[rowIdx + i].classList.add("fontBold"); // 4
@@ -1054,7 +1010,7 @@ function ctrlZ() {
 
   let previousCell = previousMovement[previousMovement.length - 1].cellInfo;
   if (previousMovement[previousMovement.length - 1].cellType === "text") {
-    previousCell.innerText = previousMovement[previousMovement.length - 1].cellContent;
+    previousCell.innerHTML = previousMovement[previousMovement.length - 1].cellContent;
     if (previousMovement.length > 1) {
       previousMovement.pop();
     }
@@ -1072,7 +1028,7 @@ function ctrlZ() {
         previousMovement[previousMovement.length - 1].cellInfo.classList.remove("hide");
       }
       previousMovement[previousMovement.length - 1].cellInfo.style.flexGrow = previousMovement[previousMovement.length - 1].cellFlexGrow;
-      previousMovement[previousMovement.length - 1].cellInfo.innerText = previousMovement[previousMovement.length - 1].cellContent;
+      previousMovement[previousMovement.length - 1].cellInfo.innerHTML = previousMovement[previousMovement.length - 1].cellContent;
       previousMovement.pop();
       i++;
     }
@@ -1089,7 +1045,7 @@ function ctrlZ() {
       i++;
     }
     previousMovement[previousMovement.length - 1].cellInfo.style.flexGrow = previousMovement[previousMovement.length - 1].cellFlexGrow + 1;
-    previousMovement[previousMovement.length - 1].cellInfo.innerText = previousMovement[previousMovement.length - 1].cellContent;
+    previousMovement[previousMovement.length - 1].cellInfo.innerHTML = previousMovement[previousMovement.length - 1].cellContent;
     previousMovement.pop();
 
     if (document.querySelector(".mark")) {
@@ -1105,12 +1061,12 @@ function ctrlZ() {
         previousMovement[previousMovement.length - 1].cellInfo.classList.remove("hide");
       }
       previousMovement[previousMovement.length - 1].cellInfo.style.flexGrow = previousMovement[previousMovement.length - 1].cellFlexGrow;
-      previousMovement[previousMovement.length - 1].cellInfo.innerText = previousMovement[previousMovement.length - 1].cellContent;
+      previousMovement[previousMovement.length - 1].cellInfo.innerHTML = previousMovement[previousMovement.length - 1].cellContent;
       previousMovement.pop();
       i++;
     }
   } else if (previousMovement[previousMovement.length - 1].cellType === "delete") {
-    previousMovement[previousMovement.length - 1].cellInfo.innerText = previousMovement[previousMovement.length - 1].cellContent;
+    previousMovement[previousMovement.length - 1].cellInfo.innerHTML = previousMovement[previousMovement.length - 1].cellContent;
     previousMovement.pop();
 
     if (document.querySelector(".mark")) {
@@ -1188,7 +1144,7 @@ function openPage(event) {
         newTimeColumn.appendChild(newTimeCell);
       }
 
-      newTable.querySelector(".timeCell").innerText = week[i];
+      newTable.querySelector(".timeCell").innerHTML = week[i];
     }
   }
 
@@ -1212,7 +1168,7 @@ function modalDelete() {
 }
 function btnPageNaming(event) {
   if (event.key === "Enter") {
-    document.querySelector(`.btnPage[order="${tempPageOrder}"]`).innerText = modalNameInput.value.trim();
+    document.querySelector(`.btnPage[order="${tempPageOrder}"]`).innerHTML = modalNameInput.value.trim();
     modalNameInput.value = "";
     modalReproduceBtn.classList.remove("hide");
     modalDeleteBtn.classList.remove("hide");
@@ -1244,7 +1200,7 @@ function btnPageReproduce() {
   newPageBtn.classList.remove("btnClicked");
   newPageBtn.addEventListener("click", openPage);
   newPageBtn.addEventListener("contextmenu", openModal);
-  newPageBtn.innerText += "(2)";
+  newPageBtn.innerHTML += "(2)";
   footer.appendChild(newPageBtn);
 
   closeModal();
@@ -1355,13 +1311,13 @@ async function saveData() {
         }
         for (let m = 0; m < cells.length; m++) {
           let singleCell = {};
-          singleCell.text = cells[m].innerText;
+          singleCell.text = cells[m].innerHTML;
           singleCell.flex = cells[m].style.flexGrow;
           //
           singleCell.fontSize = cells[m].style.fontSize;
           cells[m].classList.contains("fontBold") ? (singleCell.fontBold = "true") : "";
           cells[m].classList.contains("fontCancel") ? (singleCell.fontCancel = "true") : "";
-          cells[m].classList.contains("texting") ? (singleCell.texting = "true") : ""; //
+          cells[m].classList.contains("texting") ? (singleCell.texting = "true") : "";
           //
           cellArray.push(singleCell);
         }
@@ -1374,11 +1330,14 @@ async function saveData() {
       tableArray.push(singleTable);
     }
     singlePage.pageIndex = i;
-    singlePage.pageBtnName = pageButtons[i].innerText;
+    singlePage.pageBtnName = pageButtons[i].innerHTML;
     singlePage.pageData = tableArray;
     pageArray.push(singlePage);
   }
   allCellTexting();
+  if (document.querySelector(".mark")) {
+    document.querySelector(".mark").classList.remove("mark");
+  }
 
   await setDoc(doc(db, "pageData", "data"), {
     data: pageArray,
@@ -1388,7 +1347,9 @@ async function saveData() {
 async function getData() {
   allColumn = [];
   const docSnap = await getDoc(doc(db, "pageData", "data"));
-
+  if (!docSnap.data()) {
+    return;
+  }
   createNumOfPage = docSnap.data().data.length;
   docSnap.data().data.forEach((page, pageIndex) => {
     // console.log(pageIndex, page.pageBtnName);
@@ -1430,7 +1391,7 @@ function createInit(data) {
     newPageButton.setAttribute("order", i);
     newPageButton.addEventListener("click", openPage);
     newPageButton.addEventListener("contextmenu", openModal);
-    newPageButton.innerText = pageName[i];
+    newPageButton.innerHTML = pageName[i];
 
     if (i === 0) {
       currentPage = newPage;
@@ -1463,6 +1424,7 @@ function createInit(data) {
             newCell.addEventListener("click", findCurrentCell);
             if (m === 0) {
               newCell.classList.add("nameCell");
+              newCell.addEventListener("keydown", teacherNaming);
             }
           }
 
@@ -1472,12 +1434,12 @@ function createInit(data) {
               newCell.classList.add("hide");
             }
           }
-          newCell.innerText = dataByPageIndex[p].data.columnData[m].text;
+          newCell.innerHTML = dataByPageIndex[p].data.columnData[m].text;
           //
           newCell.style.fontSize = dataByPageIndex[p].data.columnData[m].fontSize;
           dataByPageIndex[p].data.columnData[m].fontBold ? newCell.classList.add("fontBold") : "";
           dataByPageIndex[p].data.columnData[m].fontCancel ? newCell.classList.add("fontCancel") : "";
-          dataByPageIndex[p].data.columnData[m].texting ? newCell.classList.add("texting") : ""; //
+          dataByPageIndex[p].data.columnData[m].texting ? newCell.classList.add("texting") : "";
           //
           newColumn.appendChild(newCell);
         }
