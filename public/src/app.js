@@ -33,6 +33,8 @@ const btnFontCancel = document.querySelector(".btnFontCancel");
 const btnViewTeachers = document.querySelector(".btnViewTeachers");
 const btnPrint = document.querySelector(".btnPrint");
 const btnSave = document.querySelector(".btnSave");
+const btnClass = document.querySelector(".btnClass");
+const btnTime = document.querySelector(".btnTime");
 //
 let currentPageOrder;
 let tempPageOrder;
@@ -58,7 +60,16 @@ let createNumOfTable;
 let createNumOfColumn;
 let createNumOfRow;
 let allColumn = [];
+//
+let login = false;
 
+while (!login) {
+  const userInfo = prompt("비밀번호");
+
+  if (parseInt(userInfo) === 366366) {
+    login = true;
+  }
+}
 //클릭된된 테이블 확인
 function findClickedTable(event) {
   if (document.querySelector(".tableClicked")) {
@@ -1087,6 +1098,79 @@ function rememberMovement(cell, type, content, flex, loop) {
     previousMovement.pop();
   }
 }
+function checkClass() {
+  const allClasses = [];
+  for (let i = 0; i < 7; i++) {
+    let allTextingCell = currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".texting:not(.nameCell)");
+    for (let j = 0; j < allTextingCell.length; j++) {
+      let tempObj = {};
+      tempObj.class = allTextingCell[j].innerText;
+      tempObj.time = Number(allTextingCell[j].style.flexGrow) / 2;
+      allClasses.push(tempObj);
+    }
+  }
+
+  const mergedData = allClasses.reduce((acc, item) => {
+    if (acc[item.class]) {
+      acc[item.class].time += item.time;
+    } else {
+      acc[item.class] = { ...item };
+    }
+    return acc;
+  }, {});
+  const result = Object.values(mergedData);
+  result.sort((a, b) => a.time - b.time);
+
+  const newWindow = window.open("", "_blank", "width=400,height=600");
+  const htmlContent = `<html>
+    <head>
+        <title>배열 데이터</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f4f4f4; }
+        </style>
+    </head>
+    <body>
+        <h2>배열 데이터</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>이름</th>
+                    <th>값</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${result.map((item) => `<tr><td>${item.class}</td><td>${item.time}</td></tr>`).join("")}
+            </tbody>
+        </table>
+    </body>
+    </html>
+`;
+  newWindow.document.write(htmlContent);
+  newWindow.document.close();
+}
+function checkTime() {
+  const numOfTeachers = currentPage.querySelectorAll(".dayTable")[0].querySelectorAll(".textColumn").length;
+  const teacherTimeArray = [];
+  for (let i = 0; i < numOfTeachers; i++) {
+    let teacherAndTime = {};
+    let teacher = currentPage.querySelectorAll(".dayTable")[0].querySelectorAll(".textColumn")[i].querySelector(".nameCell").innerText;
+    let times = 0;
+    for (let j = 0; j < 5; j++) {
+      const elements = currentPage.querySelectorAll(".dayTable")[j].querySelectorAll(`.texting:not(.nameCell)[colIndex='${i}']`);
+      elements.forEach((cell) => {
+        times += Number(cell.style.flexGrow) / 2;
+      });
+    }
+    teacherAndTime.teacher = teacher;
+    teacherAndTime.time = times;
+    teacherTimeArray.push(teacherAndTime);
+  }
+  const message = teacherTimeArray.map((item, index) => `${item.teacher}: ${item.time}`).join("\n");
+  alert(message);
+}
 /////////////////////////////////////////////////////////FOOTER///////////////////////////////////////////////////////////
 function addPage() {
   // 개수 카운팅
@@ -1240,6 +1324,8 @@ btnViewTeachers.addEventListener("click", viewTeachers);
 btnViewTeachers.addEventListener("click", saveData);
 btnPrint.addEventListener("click", customizedPrint);
 btnSave.addEventListener("click", saveData);
+btnClass.addEventListener("click", checkClass);
+btnTime.addEventListener("click", checkTime);
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey && (event.key === "p" || event.key === "P")) {
     event.preventDefault();
