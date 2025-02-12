@@ -74,6 +74,7 @@ body {
 }
 .teacherPage .timeColumn {
   height: 100%;
+  min-width: 10vh;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
@@ -83,7 +84,7 @@ body {
 }
 .teacherPage .timeCell {
   flex: 1;
-  min-width: 10vh;
+  width: 100%;
   outline: 1px solid black;
   display: flex;
   justify-content: center;
@@ -117,6 +118,7 @@ body {
 }
 .page .timeColumn {
   height: 100%;
+  min-width: 10vh;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
@@ -126,7 +128,7 @@ body {
 }
 .page .timeCell {
   flex: 1;
-  min-width: 10vh;
+  width: 100%;
   outline: 1px solid black;
   display: flex;
   justify-content: center;
@@ -309,7 +311,7 @@ button:hover {
   }
   .printPage .timeColumn {
     height: 100%;
-    min-width: 10vh;
+    min-width: 13vh;
     border: 1px solid black;
     display: flex;
     flex-direction: column;
