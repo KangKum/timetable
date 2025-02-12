@@ -337,10 +337,10 @@ function customizedPrint() {
     window.print();
     printPage.innerHTML = "";
   } else {
-    if (document.querySelector(".teacherPage")) {
+    if (currentPage.querySelector(".teacherPage")) {
       //선생님별
       for (let i = 0; i < lastCol; i++) {
-        let clonePage = document.querySelectorAll(".teacherTable")[i].cloneNode(true);
+        let clonePage = currentPage.querySelectorAll(".teacherTable")[i].cloneNode(true);
         clonePage.style.transform = `scale(${1})`;
 
         printPage.appendChild(clonePage);
@@ -351,8 +351,8 @@ function customizedPrint() {
       //요일별별
       // let mainWidth = Number(window.getComputedStyle(main).width.slice(0, -2));
       for (let i = 0; i < 7; i++) {
-        let clonePage = document.querySelectorAll(".dayTable")[i].cloneNode(true);
-        let clonePageWidth = Number(window.getComputedStyle(document.querySelectorAll(".dayTable")[i]).width.slice(0, -2));
+        let clonePage = currentPage.querySelectorAll(".dayTable")[i].cloneNode(true);
+        let clonePageWidth = Number(window.getComputedStyle(currentPage.querySelectorAll(".dayTable")[i]).width.slice(0, -2));
         console.log("mainWidth: " + mainWidth);
         console.log("pageWidth: " + clonePageWidth);
         // if (clonePageWidth > mainWidth - 50) {
