@@ -112,18 +112,29 @@ function headerInit() {
 //테이블 날짜 세팅
 function settingDate() {
   const selectedDate = new Date(selectDate.value);
-  if (currentPage) {
-    for (let i = 0; i < 7; i++) {
-      const newDate = new Date(selectedDate);
-      newDate.setDate(selectedDate.getDate() + i);
-      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = "";
-      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = newDate.toISOString().split("T")[0].slice(5) + ` (${week[i]})`;
+
+  if (clickedTable && clickedTable.getAttribute("tableIndex") === "5") {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate());
+    clickedTable.querySelector(".timeCell").innerHTML = "";
+    clickedTable.querySelector(".timeCell").innerHTML = newDate.toISOString().split("T")[0].slice(5) + ` (Sat)`;
+  } else if (clickedTable && clickedTable.getAttribute("tableIndex") === "6") {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate());
+    clickedTable.querySelector(".timeCell").innerHTML = "";
+    clickedTable.querySelector(".timeCell").innerHTML = newDate.toISOString().split("T")[0].slice(5) + ` (Sun)`;
+  } else {
+    if (currentPage) {
+      for (let i = 0; i < 7; i++) {
+        const newDate = new Date(selectedDate);
+        newDate.setDate(selectedDate.getDate() + i);
+        currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = "";
+        currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = newDate.toISOString().split("T")[0].slice(5) + ` (${week[i]})`;
+      }
     }
   }
-  if (clickedTable) {
-    clickedTable.classList.remove("tableClicked");
-    clickedTable = "";
-  }
+  clickedTable.classList.remove("tableClicked");
+  clickedTable = "";
 }
 //테이블 시간 세팅
 function settingTime() {
@@ -628,6 +639,7 @@ function timeCellBordering() {
         timeCells[i].style.borderBottom = "1px solid black";
       } else {
         timeCells[i].style.borderBottom = "1px dotted gray";
+        timeCells[i].style.fontWeight = "bold";
       }
     }
   }
@@ -640,6 +652,7 @@ function timeCellBordering() {
         timeCells[i].style.borderBottom = "1px solid black";
       } else {
         timeCells[i].style.borderBottom = "1px dotted gray";
+        timeCells[i].style.fontWeight = "bold";
       }
     }
   }
