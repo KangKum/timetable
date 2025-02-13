@@ -74,6 +74,7 @@ body {
 }
 .teacherPage .timeColumn {
   height: 100%;
+  min-width: 10vh;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
@@ -83,8 +84,7 @@ body {
 }
 .teacherPage .timeCell {
   flex: 1;
-  min-width: 10vh;
-  outline: 1px solid black;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -117,6 +117,7 @@ body {
 }
 .page .timeColumn {
   height: 100%;
+  min-width: 10vh;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
@@ -126,8 +127,8 @@ body {
 }
 .page .timeCell {
   flex: 1;
-  min-width: 10vh;
-  outline: 1px solid black;
+  width: 100%;
+  /* outline: 1px solid rgb(198, 198, 198); */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -145,7 +146,8 @@ body {
 .textCell {
   /* flex: 1; */
   min-width: 100%;
-  outline: 1px solid rgb(175, 174, 174);
+  /* outline: 1px solid rgb(212, 210, 210); */
+  outline: 1px dotted gray;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -157,6 +159,7 @@ body {
 }
 .texting {
   background-color: #f1eded;
+  outline: 1px solid black;
   text-align: center;
 }
 .page .textCell:focus {
@@ -309,7 +312,7 @@ button:hover {
   }
   .printPage .timeColumn {
     height: 100%;
-    min-width: 10vh;
+    min-width: 13vh;
     border: 1px solid black;
     display: flex;
     flex-direction: column;
@@ -320,7 +323,6 @@ button:hover {
   .printPage .timeCell {
     flex: 1;
     width: 100%;
-    outline: 1px solid black;
     display: flex;
     justify-content: center;
     align-items: center;
