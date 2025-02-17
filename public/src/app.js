@@ -637,6 +637,7 @@ function timeCellBordering() {
     for (let i = 0; i < timeCells.length; i++) {
       if (timeCells[i].innerText.slice(-2) === "00") {
         timeCells[i].style.borderBottom = "1px solid black";
+        // console.log(Array.from(timeCells[i].parentNode.children).indexOf(timeCells[i]) + 1);
       } else {
         timeCells[i].style.borderBottom = "1px dotted gray";
         timeCells[i].style.fontWeight = "bold";
