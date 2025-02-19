@@ -112,18 +112,29 @@ function headerInit() {
 //테이블 날짜 세팅
 function settingDate() {
   const selectedDate = new Date(selectDate.value);
-  if (currentPage) {
-    for (let i = 0; i < 7; i++) {
-      const newDate = new Date(selectedDate);
-      newDate.setDate(selectedDate.getDate() + i);
-      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = "";
-      currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = newDate.toISOString().split("T")[0].slice(5) + ` (${week[i]})`;
+
+  if (clickedTable && clickedTable.getAttribute("tableIndex") === "5") {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate());
+    clickedTable.querySelector(".timeCell").innerHTML = "";
+    clickedTable.querySelector(".timeCell").innerHTML = newDate.toISOString().split("T")[0].slice(5) + ` (Sat)`;
+  } else if (clickedTable && clickedTable.getAttribute("tableIndex") === "6") {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate());
+    clickedTable.querySelector(".timeCell").innerHTML = "";
+    clickedTable.querySelector(".timeCell").innerHTML = newDate.toISOString().split("T")[0].slice(5) + ` (Sun)`;
+  } else {
+    if (currentPage) {
+      for (let i = 0; i < 7; i++) {
+        const newDate = new Date(selectedDate);
+        newDate.setDate(selectedDate.getDate() + i);
+        currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = "";
+        currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = newDate.toISOString().split("T")[0].slice(5) + ` (${week[i]})`;
+      }
     }
   }
-  if (clickedTable) {
-    clickedTable.classList.remove("tableClicked");
-    clickedTable = "";
-  }
+  clickedTable.classList.remove("tableClicked");
+  clickedTable = "";
 }
 //테이블 시간 세팅
 function settingTime() {
@@ -337,10 +348,11 @@ function customizedPrint() {
     window.print();
     printPage.innerHTML = "";
   } else {
-    if (currentPage.querySelector(".teacherPage")) {
+    console.log(currentPage);
+    if (currentPage.classList.contains('hide')) {
       //선생님별
       for (let i = 0; i < lastCol; i++) {
-        let clonePage = currentPage.querySelectorAll(".teacherTable")[i].cloneNode(true);
+        let clonePage = main.querySelectorAll(".teacherTable")[i].cloneNode(true);
         clonePage.style.transform = `scale(${1})`;
 
         printPage.appendChild(clonePage);
@@ -353,8 +365,8 @@ function customizedPrint() {
       for (let i = 0; i < 7; i++) {
         let clonePage = currentPage.querySelectorAll(".dayTable")[i].cloneNode(true);
         let clonePageWidth = Number(window.getComputedStyle(currentPage.querySelectorAll(".dayTable")[i]).width.slice(0, -2));
-        console.log("mainWidth: " + mainWidth);
-        console.log("pageWidth: " + clonePageWidth);
+        // console.log("mainWidth: " + mainWidth);
+        // console.log("pageWidth: " + clonePageWidth);
         // if (clonePageWidth > mainWidth - 50) {
         // let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.2;
         clonePage.style.transform = `scale(${0.8})`;
@@ -429,18 +441,25 @@ function cellMove(event) {
     // clearDrag();
   } else if (event.shiftKey) {
     let vertical = currentColumn.querySelectorAll(".textCell");
-    if (event.key === "ArrowUp" && rowIdx > 1) {
+    if (event.key === "ArrowUp" && dragIdx > 1) {
       event.preventDefault();
       dragIdx--;
       while (vertical[dragIdx].classList.contains("hide")) {
         dragIdx--;
       }
       cellDrag();
-    } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
+    } else if (event.key === "ArrowDown" && dragIdx < lastRow) {
       event.preventDefault();
       dragIdx++;
+      let tempMove = 0;
+
       while (vertical[dragIdx].classList.contains("hide")) {
         dragIdx++;
+        tempMove++;
+        if (dragIdx >= lastRow) {
+          dragIdx -= tempMove + 1;
+          return;
+        }
       }
       cellDrag();
     } else if (event.key === "Enter") {
@@ -553,8 +572,14 @@ function cellMove(event) {
       previousCell = currentCell;
     } else if (event.key === "ArrowDown" && rowIdx < lastRow) {
       rowIdx++;
+      let tempMove = 0;
       while (currentColumn.querySelectorAll(".textCell")[rowIdx].classList.contains("hide")) {
         rowIdx++;
+        tempMove++;
+        if (rowIdx >= lastRow) {
+          rowIdx -= tempMove + 1;
+          return;
+        }
       }
       previousCell = currentCell;
     } else if (event.key === "ArrowLeft" && colIdx > 0) {
@@ -602,6 +627,35 @@ function allCellTexting() {
       allCells[i].classList.add("texting");
     } else {
       allCells[i].classList.remove("texting");
+    }
+  }
+  timeCellBordering();
+}
+function timeCellBordering() {
+  let tables = currentPage.querySelectorAll(".dayTable .timeColumn");
+  for (let j = 0; j < tables.length; j++) {
+    let timeCells = tables[j].querySelectorAll(".timeCell");
+    for (let i = 0; i < timeCells.length; i++) {
+      if (timeCells[i].innerText.slice(-2) === "00") {
+        timeCells[i].style.borderBottom = "1px solid black";
+        // console.log(Array.from(timeCells[i].parentNode.children).indexOf(timeCells[i]) + 1);
+      } else {
+        timeCells[i].style.borderBottom = "1px dotted gray";
+        timeCells[i].style.fontWeight = "bold";
+      }
+    }
+  }
+
+  let teacherTables = main.querySelectorAll(".teacherTable .timeColumn");
+  for (let j = 0; j < teacherTables.length; j++) {
+    let timeCells = teacherTables[j].querySelectorAll(".timeCell");
+    for (let i = 0; i < timeCells.length; i++) {
+      if (timeCells[i].innerText.slice(-2) === "00") {
+        timeCells[i].style.borderBottom = "1px solid black";
+      } else {
+        timeCells[i].style.borderBottom = "1px dotted gray";
+        timeCells[i].style.fontWeight = "bold";
+      }
     }
   }
 }
