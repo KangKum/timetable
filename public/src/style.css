@@ -74,7 +74,7 @@ body {
 }
 .teacherPage .timeColumn {
   height: 100%;
-  min-width: 10vh;
+  min-width: 13vh;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
@@ -93,7 +93,7 @@ body {
 }
 .teacherPage .textColumn {
   height: 100%;
-  min-width: 10vh;
+  min-width: 12vh;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
@@ -117,7 +117,7 @@ body {
 }
 .page .timeColumn {
   height: 100%;
-  min-width: 10vh;
+  min-width: 13vh;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
@@ -137,7 +137,7 @@ body {
 }
 .page .textColumn {
   height: 100%;
-  min-width: 10vh;
+  min-width: 12vh;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
@@ -329,7 +329,7 @@ button:hover {
   }
   .printPage .textColumn {
     height: 100%;
-    min-width: 10vh;
+    min-width: 12vh;
     border: 1px solid black;
     display: flex;
     flex-direction: column;

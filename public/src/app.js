@@ -326,6 +326,7 @@ function viewTeachers() {
     btnViewTeachers.innerHTML = "요일별";
     main.appendChild(newDiv);
   } else {
+    console.log(document.querySelector(".teacherPage"));
     document.querySelector(".teacherPage").remove();
     currentPage.classList.remove("hide");
     btnViewTeachers.innerHTML = "선생님별";
@@ -348,10 +349,10 @@ function customizedPrint() {
     window.print();
     printPage.innerHTML = "";
   } else {
-    if (currentPage.querySelector(".teacherPage")) {
+    if (currentPage.classList.contains("hide")) {
       //선생님별
       for (let i = 0; i < lastCol; i++) {
-        let clonePage = currentPage.querySelectorAll(".teacherTable")[i].cloneNode(true);
+        let clonePage = main.querySelectorAll(".teacherTable")[i].cloneNode(true);
         clonePage.style.transform = `scale(${1})`;
 
         printPage.appendChild(clonePage);
@@ -364,8 +365,6 @@ function customizedPrint() {
       for (let i = 0; i < 7; i++) {
         let clonePage = currentPage.querySelectorAll(".dayTable")[i].cloneNode(true);
         let clonePageWidth = Number(window.getComputedStyle(currentPage.querySelectorAll(".dayTable")[i]).width.slice(0, -2));
-        console.log("mainWidth: " + mainWidth);
-        console.log("pageWidth: " + clonePageWidth);
         // if (clonePageWidth > mainWidth - 50) {
         // let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.2;
         clonePage.style.transform = `scale(${0.8})`;
@@ -1261,6 +1260,8 @@ function openPage(event) {
     div.classList.add("hide");
   });
   document.querySelector(`.page[order="${currentPageOrder}"]`).classList.remove("hide");
+  main.querySelector(".teacherPage").remove();
+  document.querySelector(".btnViewTeachers").innerText = "선생님별";
 
   //첫 클릭시 테이블 7개 생성(월-일)
   if (currentPage.childElementCount === 0) {
@@ -1563,7 +1564,9 @@ function createInit(data) {
             newCell.addEventListener("click", findCurrentCell);
             if (m === 0) {
               newCell.classList.add("nameCell");
-              newCell.addEventListener("keydown", teacherNaming);
+              if (j < 4) {
+                newCell.addEventListener("keydown", teacherNaming);
+              }
             }
           }
 
