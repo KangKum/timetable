@@ -70,7 +70,7 @@ while (!login) {
     login = true;
   }
 }
-//클릭된된 테이블 확인
+//클릭된 테이블 확인
 function findClickedTable(event) {
   if (document.querySelector(".tableClicked")) {
     clickedTable = document.querySelector(".tableClicked");
@@ -87,9 +87,9 @@ function findClickedTable(event) {
     clickedTable.classList.add("tableClicked");
   }
 }
-//헤더 초기화화
+//헤더 초기화
 function headerInit() {
-  //날짜짜
+  //날짜
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth() + 1).padStart(2, "0");
@@ -125,7 +125,7 @@ function settingDate() {
     clickedTable.querySelector(".timeCell").innerHTML = newDate.toISOString().split("T")[0].slice(5) + ` (Sun)`;
   } else {
     if (currentPage) {
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < 5; i++) {
         const newDate = new Date(selectedDate);
         newDate.setDate(selectedDate.getDate() + i);
         currentPage.querySelectorAll(".dayTable")[i].querySelector(".timeCell").innerHTML = "";
@@ -146,7 +146,7 @@ function settingTime() {
   let timeIndex = time.indexOf(selectTime.value);
   if (!clickedTable) {
     //전체 테이블블
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 5; i++) {
       for (let j = 1; j <= currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell").length - 1; j++) {
         if (time[timeIndex + j] === undefined) {
           currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".timeCell")[j].innerHTML = "";
@@ -326,7 +326,6 @@ function viewTeachers() {
     btnViewTeachers.innerHTML = "요일별";
     main.appendChild(newDiv);
   } else {
-    console.log(document.querySelector(".teacherPage"));
     document.querySelector(".teacherPage").remove();
     currentPage.classList.remove("hide");
     btnViewTeachers.innerHTML = "선생님별";
@@ -336,15 +335,24 @@ function customizedPrint() {
   if (!currentPage) {
     return;
   }
-  let mainWidth = Number(window.getComputedStyle(main).width.slice(0, -2));
   if (clickedTable) {
     let clonePage = clickedTable.cloneNode(true);
-    let clonePageWidth = Number(window.getComputedStyle(clickedTable).width.slice(0, -2));
-
-    // if (clonePageWidth > mainWidth - 50) {
-    // let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.2;
-    clonePage.style.transform = `scale(${0.8})`;
-    // }
+    let numOfTeachers = clickedTable.querySelectorAll(".textColumn").length;
+    if (numOfTeachers < 9) {
+      clonePage.style.transform = `scale(${0.81})`;
+    } else if (numOfTeachers === 9) {
+      clonePage.style.transform = `scale(${0.74})`;
+    } else if (numOfTeachers === 10) {
+      clonePage.style.transform = `scale(${0.67})`;
+    } else if (numOfTeachers === 11) {
+      clonePage.style.transform = `scale(${0.6})`;
+    } else if (numOfTeachers === 12) {
+      clonePage.style.transform = `scale(${0.55})`;
+    } else if (numOfTeachers === 13) {
+      clonePage.style.transform = `scale(${0.51})`;
+    } else if (numOfTeachers >= 14) {
+      clonePage.style.transform = `scale(${0.47})`;
+    }
     printPage.appendChild(clonePage);
     window.print();
     printPage.innerHTML = "";
@@ -353,22 +361,31 @@ function customizedPrint() {
       //선생님별
       for (let i = 0; i < lastCol; i++) {
         let clonePage = main.querySelectorAll(".teacherTable")[i].cloneNode(true);
-        clonePage.style.transform = `scale(${1})`;
-
+        clonePage.style.transform = `scale(${0.9})`;
         printPage.appendChild(clonePage);
         window.print();
         printPage.innerHTML = "";
       }
     } else {
       //요일별별
-      // let mainWidth = Number(window.getComputedStyle(main).width.slice(0, -2));
       for (let i = 0; i < 7; i++) {
         let clonePage = currentPage.querySelectorAll(".dayTable")[i].cloneNode(true);
-        let clonePageWidth = Number(window.getComputedStyle(currentPage.querySelectorAll(".dayTable")[i]).width.slice(0, -2));
-        // if (clonePageWidth > mainWidth - 50) {
-        // let ratio = (clonePageWidth - mainWidth) / mainWidth + 0.2;
-        clonePage.style.transform = `scale(${0.8})`;
-        // }
+        let numOfTeachers = clonePage.querySelectorAll(".textColumn").length;
+        if (numOfTeachers < 9) {
+          clonePage.style.transform = `scale(${0.81})`;
+        } else if (numOfTeachers === 9) {
+          clonePage.style.transform = `scale(${0.74})`;
+        } else if (numOfTeachers === 10) {
+          clonePage.style.transform = `scale(${0.67})`;
+        } else if (numOfTeachers === 11) {
+          clonePage.style.transform = `scale(${0.6})`;
+        } else if (numOfTeachers === 12) {
+          clonePage.style.transform = `scale(${0.55})`;
+        } else if (numOfTeachers === 13) {
+          clonePage.style.transform = `scale(${0.51})`;
+        } else if (numOfTeachers >= 14) {
+          clonePage.style.transform = `scale(${0.47})`;
+        }
         printPage.appendChild(clonePage);
         window.print();
         printPage.innerHTML = "";
@@ -628,31 +645,58 @@ function allCellTexting() {
     }
   }
   timeCellBordering();
+  // textCellBordering();
 }
 function timeCellBordering() {
+  //요일별
   let tables = currentPage.querySelectorAll(".dayTable .timeColumn");
   for (let j = 0; j < tables.length; j++) {
     let timeCells = tables[j].querySelectorAll(".timeCell");
+    timeCells[0].style.borderBottom = "1px solid black";
     for (let i = 0; i < timeCells.length; i++) {
       if (timeCells[i].innerText.slice(-2) === "00") {
-        timeCells[i].style.borderBottom = "1px solid black";
-        // console.log(Array.from(timeCells[i].parentNode.children).indexOf(timeCells[i]) + 1);
+        timeCells[i].style.boxShadow = "0 0.5px 0 0 black";
+        timeCells[i].style.fontWeight = "";
       } else {
-        timeCells[i].style.borderBottom = "1px dotted gray";
+        timeCells[i].style.boxShadow = "0 0.5px 0 0 lightGray";
         timeCells[i].style.fontWeight = "bold";
       }
     }
   }
 
+  //선생님별
   let teacherTables = main.querySelectorAll(".teacherTable .timeColumn");
   for (let j = 0; j < teacherTables.length; j++) {
     let timeCells = teacherTables[j].querySelectorAll(".timeCell");
+    timeCells[0].style.borderBottom = "1px solid black";
     for (let i = 0; i < timeCells.length; i++) {
       if (timeCells[i].innerText.slice(-2) === "00") {
-        timeCells[i].style.borderBottom = "1px solid black";
+        timeCells[i].style.boxShadow = "0 0.5px 0 0 black";
+        timeCells[i].style.fontWeight = "";
       } else {
-        timeCells[i].style.borderBottom = "1px dotted gray";
+        timeCells[i].style.boxShadow = "0 0.5px 0 0 lightGray";
         timeCells[i].style.fontWeight = "bold";
+      }
+    }
+  }
+}
+function textCellBordering() {
+  for (let i = 0; i < 7; i++) {
+    let tables = currentPage.querySelectorAll(".dayTable")[i];
+    if (tables.querySelectorAll(".timeCell")[1].innerText.slice(-2) === "30") {
+      for (let j = 0; j < tables.querySelectorAll(".textCell").length; j++) {
+        let textCells = tables.querySelectorAll(".textCell")[j];
+        textCells.style.boxShadow = "";
+        if (Number(textCells.getAttribute("rowIndex")) % 2 === 0) {
+          textCells.style.boxShadow = "0 0.5px 0 0 black," + "0 -0.5px 0 0 lightGray," + "-0.5px 0 0 0 lightGray," + "0.5px 0 0 0 lightGray";
+        }
+      }
+    } else {
+      for (let j = 0; j < tables.querySelectorAll(".textCell").length; j++) {
+        textCells.style.boxShadow = "";
+        if (Number(textCells.getAttribute("rowIndex")) % 2 === 1) {
+          textCells.style.boxShadow = "0 0.5px 0 0 black," + "0 -0.5px 0 0 lightGray," + "-0.5px 0 0 0 lightGray," + "0.5px 0 0 0 lightGray";
+        }
       }
     }
   }
@@ -856,6 +900,7 @@ function mergeCell() {
       draggedCells[i].classList.add("hide");
       draggedCells[i].style.flex = 0;
       draggedCells[i].innerHTML = "";
+      draggedCells[i].style.border = 0;
     }
     currentCell = draggedCells[0];
     currentCell.focus();
@@ -879,6 +924,7 @@ function mergeCell() {
 function teacherNaming(event) {
   if (event.key === "Enter" || event.key === "Tab") {
     let index = Number(this.getAttribute("colIndex"));
+
     for (let i = 0; i < 5; i++) {
       currentPage.querySelectorAll(".dayTable")[i].querySelectorAll(".textColumn")[index].querySelector(".nameCell").innerHTML = this.innerHTML;
     }
@@ -1078,10 +1124,10 @@ function ctrlZ() {
       previousMovement.pop();
     }
 
-    if (document.querySelector(".mark")) {
-      document.querySelector(".mark").classList.remove("mark");
-    }
-    previousCell.classList.add("mark");
+    // if (document.querySelector(".mark")) {
+    //   document.querySelector(".mark").classList.remove("mark");
+    // }
+    // previousCell.classList.add("mark");
   } else if (previousMovement[previousMovement.length - 1].cellType === "merge") {
     let i = 0;
     let maxLoop = previousMovement[previousMovement.length - 1].cellLoop;
@@ -1096,10 +1142,10 @@ function ctrlZ() {
       i++;
     }
 
-    if (document.querySelector(".mark")) {
-      document.querySelector(".mark").classList.remove("mark");
-    }
-    previousCell.classList.add("mark");
+    // if (document.querySelector(".mark")) {
+    //   document.querySelector(".mark").classList.remove("mark");
+    // }
+    // previousCell.classList.add("mark");
   } else if (previousMovement[previousMovement.length - 1].cellType === "demerge") {
     let i = 1;
     let maxLoop = previousMovement[previousMovement.length - 1].cellFlexGrow;
@@ -1111,10 +1157,10 @@ function ctrlZ() {
     previousMovement[previousMovement.length - 1].cellInfo.innerHTML = previousMovement[previousMovement.length - 1].cellContent;
     previousMovement.pop();
 
-    if (document.querySelector(".mark")) {
-      document.querySelector(".mark").classList.remove("mark");
-    }
-    previousCell.classList.add("mark");
+    // if (document.querySelector(".mark")) {
+    //   document.querySelector(".mark").classList.remove("mark");
+    // }
+    // previousCell.classList.add("mark");
   } else if (previousMovement[previousMovement.length - 1].cellType === "ctrlV") {
     let i = 0;
     let maxLoop = previousMovement[previousMovement.length - 1].cellLoop;
@@ -1132,10 +1178,10 @@ function ctrlZ() {
     previousMovement[previousMovement.length - 1].cellInfo.innerHTML = previousMovement[previousMovement.length - 1].cellContent;
     previousMovement.pop();
 
-    if (document.querySelector(".mark")) {
-      document.querySelector(".mark").classList.remove("mark");
-    }
-    previousCell.classList.add("mark");
+    // if (document.querySelector(".mark")) {
+    //   document.querySelector(".mark").classList.remove("mark");
+    // }
+    // previousCell.classList.add("mark");
   }
 }
 function rememberMovement(cell, type, content, flex, loop) {
@@ -1260,7 +1306,9 @@ function openPage(event) {
     div.classList.add("hide");
   });
   document.querySelector(`.page[order="${currentPageOrder}"]`).classList.remove("hide");
-  main.querySelector(".teacherPage").remove();
+  if (main.querySelector(".teacherPage")) {
+    main.querySelector(".teacherPage").remove();
+  }
   document.querySelector(".btnViewTeachers").innerText = "선생님별";
 
   //첫 클릭시 테이블 7개 생성(월-일)
