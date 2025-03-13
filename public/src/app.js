@@ -339,19 +339,19 @@ function customizedPrint() {
     let clonePage = clickedTable.cloneNode(true);
     let numOfTeachers = clickedTable.querySelectorAll(".textColumn").length;
     if (numOfTeachers < 9) {
-      clonePage.style.transform = `scale(${0.81})`;
+      clonePage.style.transform = `scale(${0.82})`;
     } else if (numOfTeachers === 9) {
-      clonePage.style.transform = `scale(${0.74})`;
+      clonePage.style.transform = `scale(${0.75})`;
     } else if (numOfTeachers === 10) {
-      clonePage.style.transform = `scale(${0.67})`;
+      clonePage.style.transform = `scale(${0.68})`;
     } else if (numOfTeachers === 11) {
-      clonePage.style.transform = `scale(${0.6})`;
+      clonePage.style.transform = `scale(${0.62})`;
     } else if (numOfTeachers === 12) {
-      clonePage.style.transform = `scale(${0.55})`;
+      clonePage.style.transform = `scale(${0.59})`;
     } else if (numOfTeachers === 13) {
-      clonePage.style.transform = `scale(${0.51})`;
+      clonePage.style.transform = `scale(${0.55})`;
     } else if (numOfTeachers >= 14) {
-      clonePage.style.transform = `scale(${0.47})`;
+      clonePage.style.transform = `scale(${0.49})`;
     }
     printPage.appendChild(clonePage);
     window.print();
@@ -372,19 +372,19 @@ function customizedPrint() {
         let clonePage = currentPage.querySelectorAll(".dayTable")[i].cloneNode(true);
         let numOfTeachers = clonePage.querySelectorAll(".textColumn").length;
         if (numOfTeachers < 9) {
-          clonePage.style.transform = `scale(${0.81})`;
+          clonePage.style.transform = `scale(${0.82})`;
         } else if (numOfTeachers === 9) {
-          clonePage.style.transform = `scale(${0.74})`;
+          clonePage.style.transform = `scale(${0.75})`;
         } else if (numOfTeachers === 10) {
-          clonePage.style.transform = `scale(${0.67})`;
+          clonePage.style.transform = `scale(${0.68})`;
         } else if (numOfTeachers === 11) {
-          clonePage.style.transform = `scale(${0.6})`;
+          clonePage.style.transform = `scale(${0.62})`;
         } else if (numOfTeachers === 12) {
-          clonePage.style.transform = `scale(${0.55})`;
+          clonePage.style.transform = `scale(${0.59})`;
         } else if (numOfTeachers === 13) {
-          clonePage.style.transform = `scale(${0.51})`;
+          clonePage.style.transform = `scale(${0.55})`;
         } else if (numOfTeachers >= 14) {
-          clonePage.style.transform = `scale(${0.47})`;
+          clonePage.style.transform = `scale(${0.49})`;
         }
         printPage.appendChild(clonePage);
         window.print();
